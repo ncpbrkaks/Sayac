@@ -137,6 +137,11 @@
             font-style: italic;
         }
 
+        .score-container {
+            display: flex;
+            align-items: center;
+        }
+
         .user-score {
             font-size: 26px;
             font-weight: 900;
@@ -144,13 +149,23 @@
             margin-left: 12px;
         }
 
-        .rank-first .user-score {
-            color: #ff5722;
-        }
+        .rank-first .user-score { color: #ff5722; }
+        .rank-last .user-score { color: #81c784; }
 
-        .rank-last .user-score {
-            color: #81c784;
+        /* Yönetici Silme Butonu */
+        .admin-btn {
+            background: #d32f2f;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-left: 10px;
+            font-size: 14px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
+        .admin-btn:active { transform: scale(0.9); }
 
         #nameModal {
             position: fixed;
@@ -244,6 +259,10 @@
         const db = getDatabase(app);
         const countersRef = ref(db, "counters");
 
+        // Gizli yönetici kontrolü
+        const urlParams = new URLSearchParams(window.location.search);
+        const isAdmin = urlParams.get('admin') === 'patron';
+
         const quotesMax = [
             "Yakında egzoz muayenesine girecek 🚗💨",
             "Ciğeri ele almaya en yakın 💀",
@@ -313,6 +332,18 @@
             if (navigator.vibrate) navigator.vibrate(40);
         };
 
+        // Yöneticiler için skoru 1 düşürme fonksiyonu
+        window.removeSmoke = function(targetName) {
+            const userRef = ref(db, "counters/" + sanitizeKey(targetName));
+            runTransaction(userRef, (currentData) => {
+                if (currentData && currentData.count > 0) {
+                    currentData.count -= 1;
+                    currentData.updated_at = Date.now();
+                }
+                return currentData;
+            });
+        };
+
         function createFloatingEmoji() {
             const btn = document.getElementById("mainBtn");
             const rect = btn.getBoundingClientRect();
@@ -370,6 +401,8 @@
                     quote = quotesMid[index % quotesMid.length];
                 }
 
+                const adminBtnHtml = isAdmin ? `<button class="admin-btn" onclick="removeSmoke('${user.name}')">-1</button>` : '';
+
                 const row = document.createElement("div");
                 row.className = rowClass;
                 row.innerHTML = `
@@ -377,7 +410,10 @@
                         <div class="user-name">${icon} ${user.name}</div>
                         <div class="user-quote">${quote}</div>
                     </div>
-                    <div class="user-score">${count}</div>
+                    <div class="score-container">
+                        <div class="user-score">${count}</div>
+                        ${adminBtnHtml}
+                    </div>
                 `;
                 board.appendChild(row);
             });
