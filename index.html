@@ -62,10 +62,11 @@
         .row-cost { font-size: 12px; color: var(--ios-red); font-weight: 500; margin-top: 2px; }
         .rank-last .row-cost { color: var(--text-muted); }
 
-        .admin-tools { position: absolute; right: -215px; height: 100%; top: 0; display: flex; align-items: center; opacity: 0; transition: all 0.3s; background: var(--card-bg); }
-        .edit-mode .list-row { transform: translateX(-215px); }
+        /* Daraltılmış Admin Araçları (Taşmayı önler) */
+        .admin-tools { position: absolute; right: -180px; height: 100%; top: 0; display: flex; align-items: center; opacity: 0; transition: all 0.3s; background: var(--card-bg); }
+        .edit-mode .list-row { transform: translateX(-180px); }
         .edit-mode .admin-tools { opacity: 1; right: 0; }
-        .tool-btn { height: 100%; width: 53px; border: none; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; cursor: pointer; font-size: 12px; font-weight: 600; gap: 4px;}
+        .tool-btn { height: 100%; width: 45px; border: none; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; cursor: pointer; font-size: 11px; font-weight: 600; gap: 4px; padding: 0;}
         .tool-add { background: var(--ios-blue); } .tool-sub { background: #FF9F0A; } .tool-zero { background: #8E8E93; } .tool-del { background: var(--ios-red); }
 
         .admin-add-user {
@@ -75,7 +76,6 @@
             text-align: center; font-size: 16px; font-weight: 600; cursor: pointer; margin-bottom: 30px;
         }
 
-        /* Gelişmiş Profil Modalı (iOS Health Stili) */
         .sheet-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 100; opacity: 0; pointer-events: none; transition: 0.3s; }
         .sheet-overlay.active { opacity: 1; pointer-events: auto; }
         .bottom-sheet { position: fixed; bottom: -100%; left: 0; width: 100%; background: #1C1C1E; border-radius: 24px 24px 0 0; z-index: 101; transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; flex-direction: column; max-height: 90vh; }
@@ -92,7 +92,6 @@
 
         .content-scroll { overflow-y: auto; padding-bottom: 30px; }
         
-        /* Rozet Listesi Alanı */
         .badge-list { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 20px 20px; }
         .badge-item { background: #121212; border: 1px solid #333; border-radius: 12px; padding: 10px; display: flex; align-items: center; gap: 10px; width: calc(50% - 4px); }
         .badge-icon { font-size: 24px; }
@@ -246,7 +245,7 @@
 
         const BADGES = {
             baca: { icon: "🏭", title: "Yürüyen Baca", desc: "1 saatte 4'ten fazla içme krizi" },
-            zincir: { icon: "🔗", title: "Zincirleme Kaz", desc: "Söndürmeden peş peşe yakma" },
+            zincir: { icon: "🔗", title: "Zincirleme", desc: "Söndürmeden peş peşe yakma" },
             vampir: { icon: "🦇", title: "Gece Vardiyası", desc: "Gece 00:00'dan sonra ağır mesai" },
             horoz: { icon: "🐓", title: "Erken Öten", desc: "Sabahın köründe (05-07) uyanır uyanmaz" },
             fotosentez: { icon: "🌲", title: "Fotosentez", desc: "Bugün 0 çekerek bitkiye bağladı" },
@@ -295,7 +294,7 @@
             }
         };
 
-        // YENİ DOĞAL VERİ EKLEME (Data Poisoning Engellendi)
+        // KUSURSUZ DOĞAL VERİ EKLEME (12 Saatte 1 Dağıtım)
         window.adminAddMultiple = function(targetName, event) {
             event.stopPropagation();
             const amount = parseInt(prompt(`${targetName} için kaç adet eski sayı aktarılacak?`, "10"));
@@ -303,19 +302,15 @@
                 update(ref(db, "counters/" + sanitizeKey(targetName)), { name: targetName });
                 
                 const now = Date.now();
-                const fourteenDaysMs = 14 * 24 * 60 * 60 * 1000;
+                // Her log arasına tam 12 saat boşluk koyuyoruz. İstatistikleri ASLA bozmaz.
+                const interval = 12 * 60 * 60 * 1000; 
                 
                 for(let i=0; i<amount; i++) {
                     const logRef = push(ref(db, "counters/" + sanitizeKey(targetName) + "/logs"));
-                    // Son 14 güne rastgele dağıtıyoruz
-                    const randomPast = now - Math.floor(Math.random() * fourteenDaysMs);
-                    const d = new Date(randomPast);
-                    // Saatini uyanık olunan saatlere (08:00 - 22:00) çekiyoruz ki gece ve horoz rozetleri bozulmasın
-                    d.setHours(Math.floor(Math.random() * 14) + 8); 
-                    set(logRef, d.getTime()); 
+                    set(logRef, now - ((i + 1) * interval)); 
                 }
                 if (navigator.vibrate) navigator.vibrate([20]);
-                alert("Geçmiş veriler istatistikleri bozmamak adına son 14 güne doğal bir şekilde dağıtıldı.");
+                alert(`Başarılı! Toplam ${amount} adet kayıt eklendi. Yansımayı ekrandaki (Tpl: ...) yazısında hemen görebilirsiniz.`);
             }
         };
 
@@ -403,29 +398,22 @@
             return { minDay, minCount, maxNightDay, maxNightCount, maxHourCount, maxHourTime, chainCount };
         }
 
-        // OTOMATİK ROZET HESAPLAMA MOTORU
         function calculateUserBadges(statsObj, isVip, todayLogs, totalCount, firstLogTime) {
             let badges = [];
             if (!statsObj) {
                 if (totalCount === 0) badges.push('fotosentez');
                 return badges;
             }
-
             if (statsObj.maxHourCount > 4) badges.push('baca');
             if (statsObj.chainCount >= 3) badges.push('zincir');
             if (statsObj.maxNightCount >= 4) badges.push('vampir');
-            
             const hasEarly = todayLogs.some(t => { const h = new Date(t).getHours(); return h >= 5 && h < 7; });
             if (hasEarly) badges.push('horoz');
-
             if (todayLogs.length === 0 && totalCount > 0) badges.push('fotosentez');
-            
             const daysActive = Math.max(1, (Date.now() - firstLogTime) / (1000 * 3600 * 24));
             if (daysActive > 3 && (totalCount / daysActive) <= 1.5 && todayLogs.length > 0) badges.push('emzik');
-
             if (isVip) badges.push('vip');
             if (totalCount >= 100) badges.push('yuz');
-
             return badges;
         }
 
@@ -435,7 +423,6 @@
 
             if (processedUsers.length === 0) { board.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted);">Kimse yok.</div>'; return; }
 
-            // VIP Rozeti için haftanın en yükseğini bul
             const maxWeek = Math.max(...processedUsers.map(u => u.weekCount));
 
             processedUsers.sort((a, b) => currentTab === 'daily' ? b.todayCount - a.todayCount : b.weekCount - a.weekCount);
@@ -448,7 +435,6 @@
                 if (index === 0 && count > 0 && processedUsers.length > 1) { badgeClass = "rank-first"; icon = "💀"; costColor = "var(--ios-red)"; } 
                 else if (index === processedUsers.length - 1 && processedUsers.length > 1) { badgeClass = "rank-last"; icon = "🌿"; costColor = "var(--text-muted)"; }
 
-                // Kullanıcının Rozetlerini Belirle
                 const stats = calculateAdvancedStats(user.allLogs);
                 const isVip = user.weekCount === maxWeek && user.weekCount > 0;
                 user.earnedBadges = calculateUserBadges(stats, isVip, user.todayLogs, user.totalCount, user.firstLogTime);
@@ -464,14 +450,14 @@
                     <div class="rank-badge ${badgeClass}">${icon}</div>
                     <div class="row-content">
                         <div class="row-name">${user.name} <span class="inline-badges">${badgeIconsHtml}</span></div>
-                        <div class="row-quote">${dynamicQuote}</div>
+                        <div class="row-quote">${dynamicQuote} <strong style="color: #636366; font-size: 11px;">(Tpl: ${user.totalCount})</strong></div>
                     </div>
                     <div class="row-stats"><div class="row-score">${count}</div><div class="row-cost" style="color: ${costColor}">${costStr}</div></div>
                     <div class="admin-tools">
-                        <button class="tool-btn tool-add" onclick="adminAddMultiple('${user.name}', event)"><span>+Sayı</span></button>
-                        <button class="tool-btn tool-sub" onclick="adminSub('${user.name}', event)"><span>-1</span></button>
-                        <button class="tool-btn tool-zero" onclick="adminZero('${user.name}', event)"><span>Sıfır</span></button>
-                        <button class="tool-btn tool-del" onclick="adminDel('${user.name}', event)"><span>Sil</span></button>
+                        <button class="tool-btn tool-add" onclick="adminAddMultiple('${user.name}', event)">+ Ekle</button>
+                        <button class="tool-btn tool-sub" onclick="adminSub('${user.name}', event)">-1</button>
+                        <button class="tool-btn tool-zero" onclick="adminZero('${user.name}', event)">0</button>
+                        <button class="tool-btn tool-del" onclick="adminDel('${user.name}', event)">Sil</button>
                     </div>`;
                 board.appendChild(row);
             });
@@ -486,7 +472,6 @@
             document.getElementById('sheetWeekCount').innerText = user.weekCount;
             document.getElementById('sheetTotalCost').innerText = (user.totalCount * COST_PER_ITEM) + " ₺";
 
-            // Rozet Kartlarını Çiz
             const badgeContainer = document.getElementById('sheetBadges');
             const badgeTitle = document.getElementById('badgeTitle');
             badgeContainer.innerHTML = '';
