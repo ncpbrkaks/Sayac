@@ -3,145 +3,210 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Tüketim Raporu</title>
     <style>
         :root {
-            --bg-color: #000000; --card-bg: #1C1C1E; --text-main: #FFFFFF;
-            --text-muted: rgba(235, 235, 245, 0.6); --ios-green: #32D74B;
-            --ios-red: #FF453A; --ios-blue: #0A84FF; --separator: rgba(84, 84, 88, 0.65);
+            --bg-base: #000000;
+            --bg-glass: rgba(28, 28, 30, 0.65);
+            --bg-card: rgba(44, 44, 46, 0.5);
+            --text-main: #FFFFFF;
+            --text-muted: #EBEBF599;
+            --ios-green: #30D158;
+            --ios-red: #FF453A;
+            --ios-blue: #0A84FF;
+            --separator: rgba(84, 84, 88, 0.3);
+            --radius-lg: 24px;
+            --radius-md: 16px;
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
-            background-color: var(--bg-color); color: var(--text-main); margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
+            background-color: var(--bg-base);
+            background-image: radial-gradient(circle at top left, rgba(10, 132, 255, 0.1), transparent 50%),
+                              radial-gradient(circle at bottom right, rgba(48, 209, 88, 0.05), transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-main); margin: 0;
             padding: env(safe-area-inset-top) 20px env(safe-area-inset-bottom) 20px;
-            display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow-x: hidden;
+            display: flex; flex-direction: column; align-items: center; min-height: 100vh;
         }
 
-        .header { width: 100%; max-width: 400px; display: flex; justify-content: space-between; align-items: flex-end; margin-top: 10px; padding-bottom: 15px; position: relative; }
-        .header h1 { font-size: 34px; font-weight: 700; margin: 0; letter-spacing: 0.5px; }
+        /* Glassmorphism Classes */
+        .glass {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 0.5px solid rgba(255,255,255,0.1);
+        }
+
+        .header { width: 100%; max-width: 400px; display: flex; justify-content: space-between; align-items: flex-end; margin-top: 15px; padding-bottom: 20px; }
+        .header h1 { font-size: 32px; font-weight: 800; margin: 0; letter-spacing: 0.5px; }
         .header .date { font-size: 13px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
         
-        .admin-controls { display: flex; gap: 10px; display: none; }
-        .admin-btn { color: var(--ios-blue); font-size: 15px; background: rgba(10,132,255,0.15); border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        .admin-btn { color: var(--ios-blue); font-size: 14px; background: rgba(10,132,255,0.15); border: none; padding: 8px 14px; border-radius: 12px; cursor: pointer; font-weight: 600; display: none; transition: 0.2s; }
+        .admin-btn:active { transform: scale(0.95); opacity: 0.8; }
 
-        .btn-container { margin: 20px 0 30px 0; display: flex; justify-content: center; }
+        .btn-container { margin: 10px 0 35px 0; display: flex; justify-content: center; position: relative; }
         .btn-add {
-            background: linear-gradient(145deg, #2a2a2c, #1c1c1e); border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 50%; width: 140px; height: 140px; color: var(--ios-green); font-size: 52px; font-weight: 300;
-            box-shadow: 20px 20px 60px rgba(0,0,0,0.5), -10px -10px 30px rgba(255,255,255,0.03);
-            cursor: pointer; transition: all 0.15s; display: flex; justify-content: center; align-items: center;
+            background: linear-gradient(135deg, #30D158 0%, #24993F 100%);
+            border: none; border-radius: 50%; width: 130px; height: 130px;
+            color: #fff; font-size: 56px; font-weight: 300;
+            box-shadow: 0 10px 30px rgba(48, 209, 88, 0.4), inset 0 2px 5px rgba(255,255,255,0.3);
+            cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex; justify-content: center; align-items: center; text-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
-        .btn-add:active { transform: scale(0.94); color: rgba(50, 215, 75, 0.5); }
+        .btn-add:active { transform: scale(0.9); box-shadow: 0 5px 15px rgba(48, 209, 88, 0.2); }
+        .btn-ring { position: absolute; top: -10px; left: -10px; right: -10px; bottom: -10px; border-radius: 50%; border: 1px solid rgba(48, 209, 88, 0.3); animation: pulse 2s infinite; pointer-events: none; }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.15); opacity: 0; } }
 
-        .segmented-control { display: flex; background: rgba(118, 118, 128, 0.24); border-radius: 8px; padding: 2px; width: 100%; max-width: 400px; margin-bottom: 20px; }
-        .seg-btn { flex: 1; text-align: center; padding: 6px 0; font-size: 13px; font-weight: 600; color: var(--text-main); border: none; background: transparent; border-radius: 6px; cursor: pointer; transition: 0.2s; }
-        .seg-btn.active { background: #636366; box-shadow: 0 3px 8px rgba(0,0,0,0.12); }
+        .segmented-control { display: flex; background: rgba(118, 118, 128, 0.24); border-radius: 10px; padding: 3px; width: 100%; max-width: 400px; margin-bottom: 20px; }
+        .seg-btn { flex: 1; text-align: center; padding: 8px 0; font-size: 13px; font-weight: 600; color: var(--text-main); border: none; background: transparent; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+        .seg-btn.active { background: #636366; box-shadow: 0 3px 8px rgba(0,0,0,0.2); }
 
-        .list-container { width: 100%; max-width: 400px; background: var(--card-bg); border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
-        .list-row { display: flex; align-items: center; padding: 14px 16px; position: relative; transition: transform 0.3s; background: var(--card-bg); cursor: pointer; }
-        .list-row:not(:last-child)::after { content: ''; position: absolute; bottom: 0; left: 54px; right: 0; height: 0.5px; background: var(--separator); }
-        .rank-badge { width: 30px; height: 30px; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 16px; margin-right: 14px; background: #2C2C2E; flex-shrink: 0; }
-        .rank-first .rank-badge { background: var(--ios-red); color: white; }
-        .rank-last .rank-badge { background: var(--ios-green); color: white; }
-        .row-content { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; padding-right: 10px; }
-        .row-name { font-size: 17px; font-weight: 500; line-height: 1.3; display: flex; align-items: center; }
-        .inline-badges { font-size: 13px; margin-left: 6px; letter-spacing: 1px; }
-        .row-quote { font-size: 13px; color: var(--text-muted); margin-top: 2px; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .row-stats { display: flex; flex-direction: column; align-items: flex-end; min-width: 45px; }
-        .row-score { font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
-        .row-cost { font-size: 12px; color: var(--ios-red); font-weight: 500; margin-top: 2px; }
-
-        .admin-tools { position: absolute; right: -180px; height: 100%; top: 0; display: flex; align-items: center; opacity: 0; transition: all 0.3s; background: var(--card-bg); }
-        .edit-mode .list-row { transform: translateX(-180px); }
-        .edit-mode .admin-tools { opacity: 1; right: 0; }
-        .tool-btn { height: 100%; width: 45px; border: none; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; cursor: pointer; font-size: 11px; font-weight: 600; gap: 4px; padding: 0;}
-        .tool-add { background: var(--ios-blue); } .tool-sub { background: #FF9F0A; } .tool-zero { background: #8E8E93; } .tool-del { background: var(--ios-red); }
-
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; pointer-events: none; transition: 0.3s; }
-        .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        .modal-card { background: #1C1C1E; border-radius: 14px; width: 90%; max-width: 360px; max-height: 85vh; overflow-y: auto; text-align: left; padding: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+        .list-container { width: 100%; max-width: 400px; border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 20px; }
+        .list-row { display: flex; align-items: center; padding: 16px; position: relative; transition: background 0.2s; cursor: pointer; }
+        .list-row:not(:last-child)::after { content: ''; position: absolute; bottom: 0; left: 60px; right: 0; height: 0.5px; background: var(--separator); }
+        .list-row:active { background: rgba(255,255,255,0.05); }
         
-        /* Form & Input Stilleri */
-        .form-group { margin-bottom: 15px; }
-        .form-label { display: block; font-size: 14px; color: var(--text-muted); margin-bottom: 5px; font-weight: 600; }
-        .form-select, .form-input { width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 12px; border-radius: 8px; font-size: 15px; outline: none; }
-        .primary-btn { width: 100%; background: var(--ios-blue); color: white; border: none; padding: 14px; font-size: 16px; font-weight: 600; border-radius: 10px; cursor: pointer; margin-top: 10px; }
-        .close-btn { width: 100%; background: transparent; color: var(--ios-red); border: 1px solid rgba(255,59,48,0.3); padding: 14px; font-size: 16px; font-weight: 600; border-radius: 10px; cursor: pointer; margin-top: 10px; }
+        .rank-badge { width: 34px; height: 34px; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 16px; margin-right: 14px; background: rgba(255,255,255,0.1); flex-shrink: 0; font-weight: 700; border: 1px solid rgba(255,255,255,0.05); }
+        .rank-first .rank-badge { background: linear-gradient(135deg, #FF453A, #C9342B); box-shadow: 0 4px 10px rgba(255,69,58,0.3); border:none;}
+        .rank-last .rank-badge { background: linear-gradient(135deg, #30D158, #24993F); box-shadow: 0 4px 10px rgba(48,209,88,0.3); border:none;}
+        
+        .row-content { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; padding-right: 10px; }
+        .row-name { font-size: 17px; font-weight: 600; line-height: 1.3; display: flex; align-items: center; }
+        .inline-badges { font-size: 14px; margin-left: 6px; letter-spacing: 2px; }
+        .row-quote { font-size: 13px; color: var(--text-muted); margin-top: 3px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        
+        .row-stats { display: flex; flex-direction: column; align-items: flex-end; min-width: 55px; }
+        .row-score { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+        .row-cost { font-size: 12px; color: var(--ios-red); font-weight: 600; margin-top: 2px; }
 
-        /* Profil / Alt Sayfa Stilleri */
+        /* Unified Modals */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-card { background: rgba(30,30,32,0.85); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-lg); width: 92%; max-width: 400px; max-height: 85vh; overflow-y: auto; padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        
+        .form-group { margin-bottom: 18px; }
+        .form-label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-select, .form-input { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 14px; border-radius: 12px; font-size: 15px; outline: none; transition: 0.2s; appearance: none;}
+        .form-select:focus, .form-input:focus { border-color: var(--ios-blue); box-shadow: 0 0 0 3px rgba(10,132,255,0.2); }
+        
+        .primary-btn { width: 100%; background: var(--ios-blue); color: white; border: none; padding: 15px; font-size: 16px; font-weight: 600; border-radius: 12px; cursor: pointer; margin-top: 15px; transition: 0.2s; }
+        .primary-btn:active { transform: scale(0.98); opacity: 0.9; }
+        .danger-btn { background: rgba(255,69,58,0.15); color: var(--ios-red); border: 1px solid rgba(255,69,58,0.3); }
+        .close-btn { width: 100%; background: transparent; color: var(--text-muted); border: none; padding: 15px; font-size: 16px; font-weight: 600; border-radius: 12px; cursor: pointer; margin-top: 5px; }
+
+        /* Profil / Alt Sayfa (Sheet) */
         .sheet-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 100; opacity: 0; pointer-events: none; transition: 0.3s; }
         .sheet-overlay.active { opacity: 1; pointer-events: auto; }
-        .bottom-sheet { position: fixed; bottom: -100%; left: 0; width: 100%; background: #1C1C1E; border-radius: 24px 24px 0 0; z-index: 101; transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; flex-direction: column; max-height: 90vh; }
+        .bottom-sheet { position: fixed; bottom: -100%; left: 0; width: 100%; background: rgba(28,28,30,0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 32px 32px 0 0; border-top: 1px solid rgba(255,255,255,0.1); z-index: 101; transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; flex-direction: column; max-height: 90vh; }
         .bottom-sheet.active { bottom: 0; }
-        .sheet-handle { width: 40px; height: 5px; background: #555; border-radius: 3px; margin: 12px auto; }
+        .sheet-handle { width: 40px; height: 5px; background: rgba(255,255,255,0.3); border-radius: 3px; margin: 12px auto; }
         .sheet-header { padding: 10px 20px 20px; text-align: center; border-bottom: 1px solid var(--separator); }
-        .content-scroll { overflow-y: auto; padding-bottom: 30px; }
+        .sheet-header h2 { margin: 0; font-size: 26px; font-weight: 800; }
+        .sheet-header p { margin: 6px 0 0 0; font-size: 14px; color: var(--text-muted); font-style: italic; line-height: 1.4; }
+        .content-scroll { overflow-y: auto; padding-bottom: 40px; }
         
-        .stat-grid { display: flex; justify-content: space-between; padding: 20px; background: #000; }
+        .stat-grid { display: flex; justify-content: space-between; padding: 20px; background: rgba(0,0,0,0.2); }
         .stat-box { flex: 1; text-align: center; }
-        .stat-value { font-size: 24px; font-weight: 700; color: var(--ios-red); margin-bottom: 4px; }
-        .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
-
-        .life-card { margin: 20px; padding: 16px; border-radius: 16px; background: linear-gradient(135deg, rgba(50,215,75,0.15) 0%, rgba(50,215,75,0.05) 100%); border: 1px solid rgba(50,215,75,0.2); display: flex; align-items: center; gap: 15px; }
-        .life-card.negative { background: linear-gradient(135deg, rgba(255,69,58,0.15) 0%, rgba(255,69,58,0.05) 100%); border-color: rgba(255,69,58,0.2); }
-        .life-icon { font-size: 32px; }
-        .life-text h4 { margin: 0 0 4px 0; font-size: 15px; color: #fff; }
-        .life-text p { margin: 0; font-size: 13px; color: var(--text-muted); line-height: 1.4; }
-
-        .test-banner { margin: 20px; padding: 15px; border-radius: 12px; background: rgba(10,132,255,0.1); border: 1px dashed var(--ios-blue); text-align: center; cursor: pointer; color: var(--ios-blue); font-weight: 600; font-size: 15px; }
+        .stat-value { font-size: 26px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+        .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;}
         
+        .section-title { font-size: 17px; font-weight: 700; color: #fff; margin: 25px 20px 15px; display: flex; align-items: center; gap: 8px;}
+
+        /* Yeni İstatistik Kartları */
         .advanced-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 20px 20px; }
-        .adv-card { background: #121212; border-radius: 16px; padding: 16px; border: 1px solid #292929; }
-        .adv-icon { font-size: 22px; margin-bottom: 8px; }
-        .adv-title { font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
-        .adv-value { font-size: 17px; font-weight: 700; color: #fff; margin: 4px 0; }
+        .adv-card { background: rgba(255,255,255,0.05); border-radius: var(--radius-md); padding: 16px; border: 1px solid rgba(255,255,255,0.05); transition: 0.2s; }
+        .adv-card:active { transform: scale(0.96); background: rgba(255,255,255,0.08); }
+        .adv-icon { font-size: 24px; margin-bottom: 10px; display: inline-block; padding: 8px; background: rgba(0,0,0,0.3); border-radius: 12px; }
+        .adv-title { font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;}
+        .adv-value { font-size: 20px; font-weight: 800; color: #fff; margin: 4px 0; }
         .adv-sub { font-size: 12px; color: var(--ios-blue); font-weight: 500; }
 
-        .badge-list { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 20px 20px; }
-        .badge-item { background: #121212; border: 1px solid #333; border-radius: 12px; padding: 10px; display: flex; align-items: center; gap: 10px; width: calc(50% - 4px); }
-        .section-title { font-size: 16px; font-weight: 600; color: #fff; margin: 15px 20px 10px; }
+        .badge-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 20px 20px; }
+        .badge-item { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: var(--radius-md); padding: 12px; display: flex; align-items: center; gap: 12px; }
+        .badge-icon { font-size: 26px; }
+        .badge-title { font-size: 13px; font-weight: 700; color: #fff; }
+        .badge-desc { font-size: 11px; color: var(--text-muted); line-height: 1.3; margin-top: 3px;}
+
+        .life-card { margin: 0 20px 20px; padding: 18px; border-radius: var(--radius-lg); background: linear-gradient(135deg, rgba(48,209,88,0.2) 0%, rgba(48,209,88,0.05) 100%); border: 1px solid rgba(48,209,88,0.3); display: flex; align-items: center; gap: 15px; }
+        .life-card.negative { background: linear-gradient(135deg, rgba(255,69,58,0.2) 0%, rgba(255,69,58,0.05) 100%); border-color: rgba(255,69,58,0.3); }
+        .life-icon { font-size: 36px; }
+        .life-text h4 { margin: 0 0 6px 0; font-size: 16px; font-weight: 700; color: #fff; }
+        .life-text p { margin: 0; font-size: 13px; color: rgba(255,255,255,0.8); line-height: 1.4; }
+
+        .test-banner { margin: 20px; padding: 16px; border-radius: var(--radius-md); background: linear-gradient(135deg, rgba(10,132,255,0.2), rgba(10,132,255,0.05)); border: 1px solid rgba(10,132,255,0.3); text-align: center; cursor: pointer; color: #fff; font-weight: 600; font-size: 15px; transition: 0.2s;}
+        .test-banner:active { transform: scale(0.98); }
+
+        .admin-data-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .action-btn { background: rgba(255,255,255,0.1); border:none; padding: 12px; border-radius: 10px; color: #fff; font-weight: 600; font-size:13px; cursor: pointer; transition: 0.2s; }
+        .action-btn:active { background: rgba(255,255,255,0.2); }
     </style>
 </head>
 <body>
     <!-- İlk Giriş Modalı -->
     <div id="loginModal" class="modal-overlay">
-        <div class="modal-card" style="text-align: center;">
-            <h2 style="margin-top:0;">Sayaca Katıl</h2>
-            <input type="text" id="nameInput" class="form-input" placeholder="Adın nedir?" autocomplete="off" maxlength="15" style="text-align:center; margin:15px 0;">
-            <button class="primary-btn" onclick="saveName()">Giriş Yap</button>
+        <div class="modal-card glass" style="text-align: center;">
+            <h2 style="margin-top:0; font-weight:800;">Sayaca Katıl</h2>
+            <p style="font-size:13px; color:var(--text-muted);">Grupta görüneceğin ismi yaz. Bir daha değiştiremezsin.</p>
+            <input type="text" id="nameInput" class="form-input" placeholder="Örn: Ahmet" autocomplete="off" maxlength="15" style="text-align:center; margin:15px 0;">
+            <button class="primary-btn" onclick="saveName()">Bölgeye Gir</button>
         </div>
     </div>
 
-    <!-- Admin Yönetim Paneli Modalı -->
+    <!-- MODÜLER YÖNETİCİ PANELİ (Tanrı Modu) -->
     <div id="adminPanelModal" class="modal-overlay">
-        <div class="modal-card">
-            <h2 style="margin-top:0; border-bottom:1px solid #333; padding-bottom:10px;">⚙️ Tanrı Modu Paneli</h2>
+        <div class="modal-card glass">
+            <h2 style="margin:0 0 20px 0; font-weight:800; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:15px;">⚙️ Tanrı Modu</h2>
             
-            <div class="form-group">
-                <label class="form-label">Kullanıcı Seçin</label>
-                <select id="adminUserSelect" class="form-select" onchange="loadAdminUserSettings()"></select>
-            </div>
+            <button class="primary-btn" style="margin-bottom:20px; background:rgba(48,209,88,0.2); color:var(--ios-green);" onclick="adminCreateUser()">+ Yeni Kullanıcı Oluştur</button>
 
             <div class="form-group">
-                <label class="form-label">İstatistik/Rozet Başlangıç Tarihi</label>
-                <p style="font-size:11px; color:#888; margin:0 0 5px 0;">Eski hatalı verileri analizden dışlamak için bir tarih seçin.</p>
-                <input type="date" id="adminStartDate" class="form-input">
+                <label class="form-label">Kullanıcı İşlemleri</label>
+                <select id="adminUserSelect" class="form-select" onchange="loadAdminUserSettings()">
+                    <option value="">İşlem yapılacak kişiyi seç...</option>
+                </select>
             </div>
 
-            <h3 style="font-size:15px; margin-top:20px;">Manuel Rozet Yönetimi</h3>
-            <div id="adminBadgesContainer"></div>
+            <!-- Seçili Kullanıcıya Özel İşlemler Alanı -->
+            <div id="adminUserOperations" style="display:none;">
+                
+                <label class="form-label">Hızlı Veri Yönetimi</label>
+                <div class="admin-data-actions">
+                    <button class="action-btn" onclick="adminAddManualLog()">+ Sayı Ekle (Tarihli)</button>
+                    <button class="action-btn" onclick="adminRemoveLastLog()">- Son Kaydı Sil</button>
+                    <button class="action-btn" onclick="adminClearToday()">Bugünü Sıfırla</button>
+                    <button class="action-btn" style="color:var(--ios-red);" onclick="adminDeleteUser()">Kullanıcıyı Sil</button>
+                </div>
 
-            <button class="primary-btn" onclick="saveAdminSettings()">Kaydet</button>
+                <div class="form-group">
+                    <label class="form-label">İstatistik Referans Tarihi</label>
+                    <p style="font-size:11px; color:var(--text-muted); margin:0 0 6px 0;">Bu tarihten önceki loglar Gelişmiş Analiz'e dahil edilmez.</p>
+                    <input type="date" id="adminStatsDate" class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Rozet Referans Tarihi</label>
+                    <p style="font-size:11px; color:var(--text-muted); margin:0 0 6px 0;">Bu tarihten önceki loglar Otomatik Rozet hesaplamasında yok sayılır.</p>
+                    <input type="date" id="adminBadgeDate" class="form-input">
+                </div>
+
+                <label class="form-label">Manuel Rozet Müdahalesi</label>
+                <div id="adminBadgesContainer" style="background:rgba(0,0,0,0.3); padding:10px; border-radius:12px; margin-bottom:15px;"></div>
+
+                <button class="primary-btn" onclick="saveAdminSettings()">Değişiklikleri Kaydet</button>
+            </div>
+
             <button class="close-btn" onclick="document.getElementById('adminPanelModal').classList.remove('active')">Kapat</button>
         </div>
     </div>
 
     <!-- Fagerström Test Modalı -->
     <div id="fagerstromModal" class="modal-overlay">
-        <div class="modal-card">
-            <h2 style="margin-top:0;">Bağımlılık Analizi</h2>
-            <p style="font-size:13px; color:#aaa; margin-bottom:20px;">Gerçekleri yüzüne vurmamız için dürüst cevap ver.</p>
+        <div class="modal-card glass">
+            <h2 style="margin-top:0;">Klinik Test</h2>
+            <p style="font-size:13px; color:var(--text-muted); margin-bottom:20px;">Gerçekleri yüzüne vurmamız için dürüst cevap ver.</p>
             
             <div class="form-group">
                 <label class="form-label">1. Uyandıktan ne kadar sonra ilk sigaranı içersin?</label>
@@ -162,7 +227,7 @@
                 </select>
             </div>
             <div class="form-group">
-                <label class="form-label">3. Sabahları, günün diğer saatlerine göre daha mı çok içersin?</label>
+                <label class="form-label">3. Sabahları daha mı çok içersin?</label>
                 <select id="f3" class="form-select"><option value="1">Evet</option><option value="0">Hayır</option></select>
             </div>
             <div class="form-group">
@@ -170,7 +235,7 @@
                 <select id="f4" class="form-select"><option value="1">Evet</option><option value="0">Hayır</option></select>
             </div>
 
-            <button class="primary-btn" onclick="submitFagerstrom()">Analizi Tamamla</button>
+            <button class="primary-btn" onclick="submitFagerstrom()">Teşhisi Gör</button>
             <button class="close-btn" onclick="document.getElementById('fagerstromModal').classList.remove('active')">Vazgeç</button>
         </div>
     </div>
@@ -180,10 +245,7 @@
             <div class="date" id="dateText">Pazartesi</div>
             <h1>Tüketim Raporu</h1>
         </div>
-        <div class="admin-controls" id="adminControls">
-            <button class="admin-btn" onclick="document.getElementById('adminPanelModal').classList.add('active')">⚙️ Panel</button>
-            <button class="admin-btn" id="editBtn" onclick="toggleEditMode()">Liste Düzenle</button>
-        </div>
+        <button class="admin-btn" id="adminToggleBtn" onclick="document.getElementById('adminPanelModal').classList.add('active')">⚙️ Panel</button>
     </div>
 
     <div class="segmented-control">
@@ -191,8 +253,14 @@
         <button class="seg-btn" id="tabWeekly" onclick="setTab('weekly')">Haftalık Utanç Tablosu</button>
     </div>
 
-    <div class="btn-container"><button class="btn-add" id="mainBtn" onclick="addSmoke()">+1</button></div>
-    <div class="list-container" id="leaderboard"><div style="padding: 20px; text-align: center; color: var(--text-muted);">Veriler yükleniyor...</div></div>
+    <div class="btn-container">
+        <div class="btn-ring"></div>
+        <button class="btn-add" id="mainBtn" onclick="addSmoke()">+1</button>
+    </div>
+
+    <div class="list-container glass" id="leaderboard">
+        <div style="padding: 30px; text-align: center; color: var(--text-muted);">Veriler yükleniyor...</div>
+    </div>
 
     <!-- Kullanıcı Profili (Sheet) -->
     <div class="sheet-overlay" id="sheetOverlay" onclick="closeSheet()"></div>
@@ -203,20 +271,21 @@
             <p id="sheetQuote">Söz</p>
         </div>
         <div class="content-scroll">
-            <!-- Fagerström ve Ömür Alanı -->
+            <div style="height: 10px;"></div>
+            
             <div id="fagerstromArea"></div>
             <div id="lifeStatsArea"></div>
 
             <div class="stat-grid">
-                <div class="stat-box"><div class="stat-value" id="sheetTodayCost">0 ₺</div><div class="stat-label">Bugünkü Zarar</div></div>
-                <div class="stat-box" style="border-left: 1px solid #333; border-right: 1px solid #333;"><div class="stat-value" id="sheetWeekCount">0</div><div class="stat-label">Haftalık Adet</div></div>
+                <div class="stat-box"><div class="stat-value" style="color:var(--ios-red);" id="sheetTodayCost">0 ₺</div><div class="stat-label">Bugünkü Zarar</div></div>
+                <div class="stat-box" style="border-left: 1px solid rgba(255,255,255,0.1); border-right: 1px solid rgba(255,255,255,0.1);"><div class="stat-value" id="sheetWeekCount">0</div><div class="stat-label">Haftalık Adet</div></div>
                 <div class="stat-box"><div class="stat-value" id="sheetTotalCost">0 ₺</div><div class="stat-label">Toplam Zarar</div></div>
             </div>
 
-            <div class="section-title" id="badgeTitle" style="display:none;">Kazanılan Rozetler</div>
+            <div class="section-title" id="badgeTitle" style="display:none;">🏅 Kazanılan Rozetler</div>
             <div class="badge-list" id="sheetBadges"></div>
 
-            <div class="section-title">Sağlık ve Alışkanlık Analizi</div>
+            <div class="section-title">🔬 Sağlık ve Alışkanlık Analizi</div>
             <div class="advanced-stats" id="advancedStats"></div>
         </div>
     </div>
@@ -236,7 +305,7 @@
         const countersRef = ref(db, "counters");
 
         const COST_PER_ITEM = 6;
-        const MINS_LOST_PER_CIG = 11; // Tıbbi Ortalama
+        const MINS_LOST_PER_CIG = 11;
         let currentTab = 'daily';
         let currentUserForSheet = null;
         
@@ -245,15 +314,7 @@
 
         const urlParams = new URLSearchParams(window.location.search);
         const isAdmin = urlParams.get('admin') === 'patron';
-        let isEditMode = false;
-        
-        if (isAdmin) document.getElementById('adminControls').style.display = 'flex';
-
-        window.toggleEditMode = function() {
-            isEditMode = !isEditMode;
-            document.getElementById('editBtn').innerText = isEditMode ? 'Bitti' : 'Liste Düzenle';
-            document.getElementById('leaderboard').classList.toggle('edit-mode');
-        };
+        if (isAdmin) document.getElementById('adminToggleBtn').style.display = 'block';
 
         window.setTab = function(tab) {
             currentTab = tab;
@@ -262,10 +323,9 @@
             renderLeaderboard();
         };
 
-        let myName = localStorage.getItem("sayac_ios_v6");
+        let myName = localStorage.getItem("sayac_ios_v7");
         let usersData = {};
         function sanitizeKey(name) { return name.replace(/[.#$[\]/]/g, "_"); }
-        
         if (myName) document.getElementById("loginModal").classList.remove('active');
         else document.getElementById("loginModal").classList.add('active');
 
@@ -286,7 +346,7 @@
             vampir: { icon: "🦇", title: "Gece Vardiyası", desc: "Gece 00:00'dan sonra ağır mesai" },
             horoz: { icon: "🐓", title: "Erken Öten", desc: "Sabahın köründe (05-07) uyandı" },
             fotosentez: { icon: "🌲", title: "Fotosentez", desc: "Bugün 0 çekerek bitkiye bağladı" },
-            emzik: { icon: "🍼", title: "Emzik", desc: "Tatlı su tiryakisi" },
+            emzik: { icon: "🍼", title: "Emzik", desc: "Tatlı su tiryakisi, ortalaması düşük" },
             vip: { icon: "💸", title: "VIP Sponsor", desc: "Haftanın en çok harcayanı" },
             yuz: { icon: "💀", title: "100 Kulübü", desc: "100 barajını aştı" }
         };
@@ -297,7 +357,7 @@
         window.saveName = function() {
             const input = document.getElementById("nameInput").value.trim();
             if (input.length > 0) {
-                myName = input; localStorage.setItem("sayac_ios_v6", myName);
+                myName = input; localStorage.setItem("sayac_ios_v7", myName);
                 document.getElementById("loginModal").classList.remove('active');
                 update(ref(db, "counters/" + sanitizeKey(myName)), { name: myName });
             }
@@ -310,26 +370,39 @@
             push(ref(db, "counters/" + sanitizeKey(myName) + "/logs"), Date.now());
         };
 
-        // --- ADMİN PANELİ İŞLEMLERİ ---
+        // --- YENİ BİRLEŞTİRİLMİŞ ADMİN PANELİ ---
+        window.adminCreateUser = async function() {
+            const newName = prompt("Eklenecek kullanıcının adı:");
+            if (newName && newName.trim().length > 0) {
+                const cleanName = newName.trim();
+                const userRef = ref(db, "counters/" + sanitizeKey(cleanName));
+                const snapshot = await get(userRef);
+                if (!snapshot.exists()) {
+                    await update(userRef, { name: cleanName });
+                    alert("Kullanıcı eklendi.");
+                } else alert("Bu kullanıcı zaten var!");
+            }
+        };
+
         window.loadAdminUserSettings = function() {
             const userKey = document.getElementById('adminUserSelect').value;
-            if(!userKey || !usersData[userKey]) return;
+            const opsDiv = document.getElementById('adminUserOperations');
+            if(!userKey || !usersData[userKey]) { opsDiv.style.display = 'none'; return; }
+            
+            opsDiv.style.display = 'block';
             const uData = usersData[userKey].adminSettings || {};
             
-            // Tarih Ayarı
-            if(uData.statsStartDate) {
-                document.getElementById('adminStartDate').value = new Date(uData.statsStartDate).toISOString().split('T')[0];
-            } else { document.getElementById('adminStartDate').value = ""; }
+            document.getElementById('adminStatsDate').value = uData.statsStartDate ? new Date(uData.statsStartDate).toISOString().split('T')[0] : "";
+            document.getElementById('adminBadgeDate').value = uData.badgeStartDate ? new Date(uData.badgeStartDate).toISOString().split('T')[0] : "";
 
-            // Rozet Ayarları
-            const manualBadges = uData.manualBadges || {};
+            const mBadges = uData.manualBadges || {};
             let html = "";
             Object.keys(BADGES).forEach(bKey => {
-                const val = manualBadges[bKey]; // "forceOn", "forceOff" veya undefined
+                const val = mBadges[bKey];
                 html += `
-                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #333; padding:8px 0;">
-                    <span style="font-size:14px;">${BADGES[bKey].icon} ${BADGES[bKey].title}</span>
-                    <select id="badge_${bKey}" class="form-select" style="width:120px; padding:6px; font-size:13px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.05); padding:8px 0;">
+                    <span style="font-size:13px; font-weight:600;">${BADGES[bKey].icon} ${BADGES[bKey].title}</span>
+                    <select id="badge_${bKey}" class="form-select" style="width:120px; padding:6px 10px; font-size:13px; background:rgba(0,0,0,0.5);">
                         <option value="auto" ${!val || val==='auto' ? 'selected':''}>Otomatik</option>
                         <option value="forceOn" ${val==='forceOn' ? 'selected':''}>Zorla Ver</option>
                         <option value="forceOff" ${val==='forceOff' ? 'selected':''}>Zorla Al</option>
@@ -341,53 +414,96 @@
 
         window.saveAdminSettings = function() {
             const userKey = document.getElementById('adminUserSelect').value;
-            const dateVal = document.getElementById('adminStartDate').value;
-            let manualBadges = {};
+            if(!userKey) return;
+            const sDate = document.getElementById('adminStatsDate').value;
+            const bDate = document.getElementById('adminBadgeDate').value;
+            
+            let mBadges = {};
             Object.keys(BADGES).forEach(bKey => {
                 const val = document.getElementById(`badge_${bKey}`).value;
-                if(val !== 'auto') manualBadges[bKey] = val;
+                if(val !== 'auto') mBadges[bKey] = val;
             });
 
-            let payload = { manualBadges: manualBadges };
-            if(dateVal) payload.statsStartDate = new Date(dateVal).getTime();
-            else payload.statsStartDate = null;
+            let payload = { manualBadges: mBadges };
+            payload.statsStartDate = sDate ? new Date(sDate).getTime() : null;
+            payload.badgeStartDate = bDate ? new Date(bDate).getTime() : null;
 
-            update(ref(db, `counters/${userKey}/adminSettings`), payload).then(() => {
-                alert("Ayarlar Kaydedildi!");
-                document.getElementById('adminPanelModal').classList.remove('active');
-            });
+            update(ref(db, `counters/${userKey}/adminSettings`), payload).then(() => alert("Kullanıcı ayarları kaydedildi."));
         };
 
-        // --- FAGERSTRÖM TESTİ ---
+        // Veri İşlemleri
+        window.adminAddManualLog = function() {
+            const userKey = document.getElementById('adminUserSelect').value;
+            const amount = parseInt(prompt("Kaç adet sayı eklenecek?", "1"));
+            if (amount > 0) {
+                // Sadece düne, her saat başı geriye dönük ekleyerek istatistiği bozmaz
+                const now = Date.now();
+                const interval = 60 * 60 * 1000; 
+                for(let i=0; i<amount; i++) push(ref(db, `counters/${userKey}/logs`), now - ((i+1) * interval));
+                alert(`${amount} kayıt başarıyla geçmişe eklendi.`);
+            }
+        };
+
+        window.adminRemoveLastLog = function() {
+            const userKey = document.getElementById('adminUserSelect').value;
+            const user = usersData[userKey];
+            if (user && user.logs) {
+                const logs = Object.entries(user.logs).sort((a,b) => b[1] - a[1]); 
+                if (logs.length > 0) {
+                    remove(ref(db, `counters/${userKey}/logs/${logs[0][0]}`));
+                    alert("En son basılan kayıt silindi.");
+                } else alert("Silinecek kayıt yok.");
+            }
+        };
+
+        window.adminClearToday = function() {
+            const userKey = document.getElementById('adminUserSelect').value;
+            if(confirm("Bu kişinin BUGÜNKÜ tüm verileri silinecek. Emin misin?")) {
+                const startOfToday = getStartOfToday();
+                const user = usersData[userKey];
+                if (user && user.logs) {
+                    Object.entries(user.logs).forEach(([logId, ts]) => {
+                        if (ts >= startOfToday) remove(ref(db, `counters/${userKey}/logs/${logId}`));
+                    });
+                    alert("Bugünün verileri temizlendi.");
+                }
+            }
+        };
+
+        window.adminDeleteUser = function() {
+            const userKey = document.getElementById('adminUserSelect').value;
+            if(confirm("Kullanıcı tamamen veritabanından SİLİNECEK! Geri dönüşü yok. Emin misin?")) {
+                remove(ref(db, `counters/${userKey}`)).then(() => {
+                    document.getElementById('adminUserSelect').value = "";
+                    document.getElementById('adminUserOperations').style.display = 'none';
+                    alert("Kullanıcı silindi.");
+                });
+            }
+        };
+
+        // --- FAGERSTRÖM ---
         window.openFagerstrom = function() { document.getElementById('fagerstromModal').classList.add('active'); };
         window.submitFagerstrom = function() {
             if(!currentUserForSheet) return;
             const score = parseInt(document.getElementById('f1').value) + parseInt(document.getElementById('f2').value) + parseInt(document.getElementById('f3').value) + parseInt(document.getElementById('f4').value);
-            
-            // Taban çizgisini Q2'den (Günde kaç adet) çekiyoruz. 0(<10: 7), 1(11-20: 15), 2(21-30: 25), 3(>30: 40)
             const q2Val = parseInt(document.getElementById('f2').value);
             const baseline = q2Val === 0 ? 7 : q2Val === 1 ? 15 : q2Val === 2 ? 25 : 40;
 
-            let resultText = "";
-            if(score <= 3) resultText = "Hafif Bağımlı. Şimdilik sadece poz kesiyorsun ama yolun sonu karanlık.";
-            else if(score <= 6) resultText = "Orta Bağımlı. Ciğerlerin alarm veriyor, 'bırakırım ya' yalanlarına inanmayı kes.";
-            else resultText = "Ağır Bağımlı. Damarlarında kan değil saf zift dolaşıyor. Oksijenle arana mesafe koymuşsun.";
-
-            update(ref(db, `counters/${sanitizeKey(currentUserForSheet.name)}/fagerstrom`), { score, baseline, resultText }).then(() => {
+            let res = score <= 3 ? "Şimdilik sadece şekil yapıyorsun ama yolun sonu belli." : score <= 6 ? "Ciğerlerin alarm veriyor, 'bırakırım ya' yalanlarına inanmayı kes." : "Damarlarında kan değil saf zift dolaşıyor. Oksijenle arana küslük girmiş.";
+            
+            update(ref(db, `counters/${sanitizeKey(currentUserForSheet.name)}/fagerstrom`), { score, baseline, resultText: res }).then(() => {
                 document.getElementById('fagerstromModal').classList.remove('active');
-                closeSheet(); // Yenilenmesi için kapat
+                closeSheet();
             });
         };
 
         // Tablo İşlemleri
         onValue(countersRef, (snapshot) => {
             usersData = snapshot.val() || {};
-            
-            // Admin paneli için listeyi güncelle
             if(isAdmin) {
                 const select = document.getElementById('adminUserSelect');
                 const currVal = select.value;
-                select.innerHTML = '<option value="">Seçiniz...</option>';
+                select.innerHTML = '<option value="">İşlem yapılacak kişiyi seç...</option>';
                 Object.keys(usersData).forEach(k => { if(usersData[k].name) select.innerHTML += `<option value="${k}">${usersData[k].name}</option>`; });
                 select.value = currVal;
             }
@@ -396,20 +512,24 @@
 
         function processUserData(user) {
             const logsArray = user.logs ? Object.values(user.logs).sort((a,b)=>a-b) : [];
-            const adminSet = user.adminSettings || {};
-            const validLogs = adminSet.statsStartDate ? logsArray.filter(t => t >= adminSet.statsStartDate) : logsArray;
+            const aSet = user.adminSettings || {};
+            
+            // Tarih filtreleri (Ayrı Ayrı)
+            const statsLogs = aSet.statsStartDate ? logsArray.filter(t => t >= aSet.statsStartDate) : logsArray;
+            const badgeLogs = aSet.badgeStartDate ? logsArray.filter(t => t >= aSet.badgeStartDate) : logsArray;
 
             const sToday = getStartOfToday(); const sWeek = getStartOfWeek();
-            const todayLogs = validLogs.filter(t => t >= sToday);
+            const todayLogs = logsArray.filter(t => t >= sToday); // Bugün her zaman gerçek bugündür
             
             return {
                 name: user.name,
                 todayCount: todayLogs.length,
-                weekCount: validLogs.filter(t => t >= sWeek).length,
-                totalCount: validLogs.length, // Sadece geçerli loglar
+                weekCount: logsArray.filter(t => t >= sWeek).length,
+                totalCount: logsArray.length, 
                 todayLogs: todayLogs,
-                allLogs: validLogs,
-                adminSettings: adminSet,
+                statsLogs: statsLogs,
+                badgeLogs: badgeLogs,
+                adminSettings: aSet,
                 fagerstrom: user.fagerstrom || null
             };
         }
@@ -440,32 +560,31 @@
             return { minDay, minCount, maxNightDay, maxNightCount, maxHourCount, maxHourTime, chainCount };
         }
 
-        function calculateUserBadges(statsObj, isVip, todayLogs, totalCount, adminSettings) {
-            let autoBadges = [];
-            if (statsObj) {
-                if (statsObj.maxHourCount >= 4) autoBadges.push('baca');
-                if (statsObj.chainCount >= 3) autoBadges.push('zincir');
-                if (statsObj.maxNightCount >= 4) autoBadges.push('vampir');
+        function calculateUserBadges(badgeStatsObj, isVip, todayLogs, totalCount, adminSettings) {
+            let auto = [];
+            if (badgeStatsObj) {
+                if (badgeStatsObj.maxHourCount >= 4) auto.push('baca');
+                if (badgeStatsObj.chainCount >= 3) auto.push('zincir');
+                if (badgeStatsObj.maxNightCount >= 4) auto.push('vampir');
             }
-            if (todayLogs.some(t => { const h = new Date(t).getHours(); return h >= 5 && h < 7; })) autoBadges.push('horoz');
-            if (todayLogs.length === 0 && totalCount > 0) autoBadges.push('fotosentez');
-            if (isVip) autoBadges.push('vip');
-            if (totalCount >= 100) autoBadges.push('yuz');
+            if (todayLogs.some(t => { const h = new Date(t).getHours(); return h >= 5 && h < 7; })) auto.push('horoz');
+            if (todayLogs.length === 0 && totalCount > 0) auto.push('fotosentez');
+            if (isVip) auto.push('vip');
+            if (totalCount >= 100) auto.push('yuz');
 
-            // Admin Override (Data Poisoning Yönetimi)
-            let finalBadges = new Set(autoBadges);
+            let finalSet = new Set(auto);
             const mB = adminSettings.manualBadges || {};
             Object.keys(BADGES).forEach(b => {
-                if(mB[b] === 'forceOn') finalBadges.add(b);
-                if(mB[b] === 'forceOff') finalBadges.delete(b);
+                if(mB[b] === 'forceOn') finalSet.add(b);
+                if(mB[b] === 'forceOff') finalSet.delete(b);
             });
-            return Array.from(finalBadges);
+            return Array.from(finalSet);
         }
 
         function renderLeaderboard() {
             const board = document.getElementById("leaderboard");
             const processedUsers = Object.values(usersData).filter(u => u && u.name).map(processUserData);
-            if (processedUsers.length === 0) { board.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted);">Kimse yok.</div>'; return; }
+            if (processedUsers.length === 0) { board.innerHTML = '<div style="padding: 30px; text-align: center; color: var(--text-muted);">Henüz kayıt yok.</div>'; return; }
 
             const maxWeek = Math.max(...processedUsers.map(u => u.weekCount));
             processedUsers.sort((a, b) => currentTab === 'daily' ? b.todayCount - a.todayCount : b.weekCount - a.weekCount);
@@ -473,33 +592,33 @@
 
             processedUsers.forEach((user, index) => {
                 const count = currentTab === 'daily' ? user.todayCount : user.weekCount;
-                let badgeClass = "rank-mid"; let icon = `<span style="font-size:12px; font-weight:700;">${index+1}</span>`;
+                let badgeClass = "rank-mid"; let icon = `<span style="font-size:14px;">${index+1}</span>`;
                 if (index === 0 && count > 0 && processedUsers.length > 1) { badgeClass = "rank-first"; icon = "💀"; } 
                 else if (index === processedUsers.length - 1 && processedUsers.length > 1) { badgeClass = "rank-last"; icon = "🌿"; }
 
-                const stats = calculateAdvancedStats(user.allLogs);
-                user.earnedBadges = calculateUserBadges(stats, (user.weekCount === maxWeek && user.weekCount > 0), user.todayLogs, user.totalCount, user.adminSettings);
+                const badgeStats = calculateAdvancedStats(user.badgeLogs);
+                user.earnedBadges = calculateUserBadges(badgeStats, (user.weekCount === maxWeek && user.weekCount > 0), user.todayLogs, user.totalCount, user.adminSettings);
                 let badgeIconsHtml = user.earnedBadges.map(b => BADGES[b].icon).join('');
 
                 const quote = getRandomQuote(user.todayCount);
                 const costStr = count > 0 ? `💸 ${count * COST_PER_ITEM} ₺` : "Tertemiz";
 
                 const row = document.createElement("div"); row.className = "list-row";
-                row.onclick = () => openUserSheet(user, quote, stats);
+                row.onclick = () => openUserSheet(user, quote);
                 row.innerHTML = `
                     <div class="rank-badge ${badgeClass}">${icon}</div>
                     <div class="row-content">
                         <div class="row-name">${user.name} <span class="inline-badges">${badgeIconsHtml}</span></div>
-                        <div class="row-quote">${quote} <strong style="color: #636366; font-size: 11px;">(Tpl: ${user.totalCount})</strong></div>
+                        <div class="row-quote">${quote}</div>
                     </div>
                     <div class="row-stats"><div class="row-score">${count}</div><div class="row-cost">${costStr}</div></div>`;
                 board.appendChild(row);
             });
         }
 
-        window.openUserSheet = function(user, quote, stats) {
-            if (isEditMode) return; 
+        window.openUserSheet = function(user, quote) {
             currentUserForSheet = user;
+            const stats = calculateAdvancedStats(user.statsLogs); // Sadece filtrelenmiş loglarla stats hesapla
             
             document.getElementById('sheetName').innerText = user.name;
             document.getElementById('sheetQuote').innerText = quote;
@@ -507,61 +626,41 @@
             document.getElementById('sheetWeekCount').innerText = user.weekCount;
             document.getElementById('sheetTotalCost').innerText = (user.totalCount * COST_PER_ITEM) + " ₺";
 
-            // Fagerström ve Ömür Hesabı
             const fArea = document.getElementById('fagerstromArea');
             const lArea = document.getElementById('lifeStatsArea');
             
             if(!user.fagerstrom && user.name === myName) {
-                fArea.innerHTML = `<div class="test-banner" onclick="openFagerstrom()">Klinik Bağımlılık Testini Çöz!</div>`;
+                fArea.innerHTML = `<div class="test-banner" onclick="openFagerstrom()">🔬 Klinik Bağımlılık Testini Çöz</div>`;
                 lArea.innerHTML = "";
             } else if (user.fagerstrom) {
-                fArea.innerHTML = `<div style="padding:0 20px;"><div style="font-size:12px; color:var(--text-muted); text-transform:uppercase; font-weight:600;">Klinik Teşhis (Skor: ${user.fagerstrom.score})</div><div style="font-size:14px; color:#fff; margin-top:4px; font-style:italic;">"${user.fagerstrom.resultText}"</div></div>`;
+                fArea.innerHTML = `<div style="padding:0 20px;"><div style="font-size:12px; color:var(--text-muted); text-transform:uppercase; font-weight:700; letter-spacing:1px;">Klinik Teşhis (Skor: ${user.fagerstrom.score})</div><div style="font-size:15px; color:#fff; margin-top:6px; font-style:italic;">"${user.fagerstrom.resultText}"</div></div>`;
                 
-                // Ömür Hesabı (Bugünkü tüketim vs Taban)
                 const diff = user.fagerstrom.baseline - user.todayCount;
                 if(diff > 0) {
                     const savedMins = diff * MINS_LOST_PER_CIG;
                     const h = Math.floor(savedMins/60); const m = savedMins%60;
-                    lArea.innerHTML = `
-                        <div class="life-card">
-                            <div class="life-icon">⏳</div>
-                            <div class="life-text">
-                                <h4>Ömrün Uzadı!</h4>
-                                <p>Normal tüketimine göre az içtiğin için bugün beklenen ömrüne <strong>${h > 0 ? h+' saat ' : ''}${m} dakika</strong> geri eklendi.</p>
-                            </div>
-                        </div>`;
+                    lArea.innerHTML = `<div class="life-card"><div class="life-icon">⏳</div><div class="life-text"><h4>Ömrün Uzadı!</h4><p>Ortalamanın altına düştüğün için beklenen ömrüne <strong>${h>0?h+' sa ':''}${m} dk</strong> eklendi.</p></div></div>`;
                 } else if (diff < 0) {
                     const lostMins = Math.abs(diff) * MINS_LOST_PER_CIG;
-                    lArea.innerHTML = `
-                        <div class="life-card negative">
-                            <div class="life-icon">⚰️</div>
-                            <div class="life-text">
-                                <h4>Mezara Erken Bilet</h4>
-                                <p>Limitini aştığın için beklenen ömründen fazladan <strong>${lostMins} dakika</strong> daha silindi.</p>
-                            </div>
-                        </div>`;
+                    lArea.innerHTML = `<div class="life-card negative"><div class="life-icon">⚰️</div><div class="life-text"><h4>Mezara Erken Bilet</h4><p>Limitini aştığın için beklenen ömründen fazladan <strong>${lostMins} dk</strong> daha silindi.</p></div></div>`;
                 } else {
-                    lArea.innerHTML = `<div class="life-card" style="background:rgba(255,255,255,0.05); border-color:#333;"><div class="life-icon">⚖️</div><div class="life-text"><h4>Standart Çürüme</h4><p>Tam ortalamanda gidiyorsun. Beklenen standart ölüm tarihine sadıksın.</p></div></div>`;
+                    lArea.innerHTML = `<div class="life-card" style="background:rgba(255,255,255,0.05); border-color:rgba(255,255,255,0.1);"><div class="life-icon">⚖️</div><div class="life-text"><h4>Standart Çürüme</h4><p>Limitindesin. Beklenen standart ölüm tarihine doğru istikrarlı gidiş.</p></div></div>`;
                 }
-            } else {
-                fArea.innerHTML = ""; lArea.innerHTML = "";
-            }
+            } else { fArea.innerHTML = ""; lArea.innerHTML = ""; }
 
-            // Rozetler
             const badgeContainer = document.getElementById('sheetBadges');
             const badgeTitle = document.getElementById('badgeTitle');
             badgeContainer.innerHTML = '';
             if (user.earnedBadges.length > 0) {
-                badgeTitle.style.display = 'block';
+                badgeTitle.style.display = 'flex';
                 user.earnedBadges.forEach(b => {
                     const badge = BADGES[b];
-                    badgeContainer.innerHTML += `<div class="badge-item"><div class="badge-icon">${badge.icon}</div><div class="badge-info"><div class="badge-title">${badge.title}</div><div class="badge-desc">${badge.desc}</div></div></div>`;
+                    badgeContainer.innerHTML += `<div class="badge-item"><div class="badge-icon">${badge.icon}</div><div><div class="badge-title">${badge.title}</div><div class="badge-desc">${badge.desc}</div></div></div>`;
                 });
             } else badgeTitle.style.display = 'none';
 
-            // Gelişmiş İstatistikler
             const advContainer = document.getElementById('advancedStats');
-            if (!stats) advContainer.innerHTML = '<div style="grid-column: 1/-1; text-align:center; color:var(--text-muted); font-size:13px;">Yeterli veri yok.</div>';
+            if (!stats) advContainer.innerHTML = '<div style="grid-column: 1/-1; text-align:center; color:var(--text-muted); font-size:13px; padding:20px;">Analiz için yeterli veri yok.</div>';
             else {
                 let hourTimeStr = "Veri yok";
                 if(stats.maxHourTime) { const d = new Date(stats.maxHourTime); hourTimeStr = `${d.getDate()} ${d.toLocaleString('tr-TR', {month:'short'})} - ${d.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'})}`; }
@@ -569,8 +668,7 @@
                     <div class="adv-card"><div class="adv-icon">🔥</div><div class="adv-title">Kriz Anı (1 Saatte)</div><div class="adv-value">${stats.maxHourCount} Adet</div><div class="adv-sub">${hourTimeStr}</div></div>
                     <div class="adv-card"><div class="adv-icon">🦇</div><div class="adv-title">Gece Mesaisi</div><div class="adv-value">${stats.maxNightCount} Adet</div><div class="adv-sub">${stats.maxNightDay} Gecesi</div></div>
                     <div class="adv-card"><div class="adv-icon">🚂</div><div class="adv-title">Zincirleme</div><div class="adv-value">${stats.chainCount} Kez</div><div class="adv-sub">15 dk'dan kısa</div></div>
-                    <div class="adv-card"><div class="adv-icon">🌱</div><div class="adv-title">İrade Günü</div><div class="adv-value">${stats.minCount} Adet</div><div class="adv-sub">${stats.minDay}</div></div>
-                `;
+                    <div class="adv-card"><div class="adv-icon">🌱</div><div class="adv-title">İrade Günü</div><div class="adv-value">${stats.minCount} Adet</div><div class="adv-sub">${stats.minDay}</div></div>`;
             }
 
             document.getElementById('sheetOverlay').classList.add('active');
