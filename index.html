@@ -61,14 +61,12 @@
         .row-cost { font-size: 12px; color: var(--ios-red); font-weight: 500; margin-top: 2px; }
         .rank-last .row-cost { color: var(--text-muted); }
 
-        /* Admin Düzenleme Modu Genişletildi */
         .admin-tools { position: absolute; right: -215px; height: 100%; top: 0; display: flex; align-items: center; opacity: 0; transition: all 0.3s; background: var(--card-bg); }
         .edit-mode .list-row { transform: translateX(-215px); }
         .edit-mode .admin-tools { opacity: 1; right: 0; }
         .tool-btn { height: 100%; width: 53px; border: none; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; cursor: pointer; font-size: 12px; font-weight: 600; gap: 4px;}
         .tool-add { background: var(--ios-blue); } .tool-sub { background: #FF9F0A; } .tool-zero { background: #8E8E93; } .tool-del { background: var(--ios-red); }
 
-        /* Yeni Admin Kullanıcı Ekleme Butonu */
         .admin-add-user {
             display: none; width: 100%; max-width: 400px; padding: 14px;
             background: rgba(10, 132, 255, 0.1); color: var(--ios-blue);
@@ -76,22 +74,33 @@
             text-align: center; font-size: 16px; font-weight: 600; cursor: pointer; margin-bottom: 30px;
         }
 
+        /* Gelişmiş Profil Modalı (iOS Health Stili) */
         .sheet-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 100; opacity: 0; pointer-events: none; transition: 0.3s; }
         .sheet-overlay.active { opacity: 1; pointer-events: auto; }
-        .bottom-sheet { position: fixed; bottom: -100%; left: 0; width: 100%; background: #1C1C1E; border-radius: 20px 20px 0 0; z-index: 101; transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; flex-direction: column; max-height: 85vh; }
+        .bottom-sheet { position: fixed; bottom: -100%; left: 0; width: 100%; background: #1C1C1E; border-radius: 24px 24px 0 0; z-index: 101; transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; flex-direction: column; max-height: 90vh; }
         .bottom-sheet.active { bottom: 0; }
-        .sheet-handle { width: 40px; height: 5px; background: #555; border-radius: 3px; margin: 10px auto; }
+        .sheet-handle { width: 40px; height: 5px; background: #555; border-radius: 3px; margin: 12px auto; }
         .sheet-header { padding: 10px 20px 20px; text-align: center; border-bottom: 1px solid var(--separator); }
-        .sheet-header h2 { margin: 0; font-size: 22px; }
-        .sheet-header p { margin: 5px 0 0 0; font-size: 14px; color: var(--text-muted); }
+        .sheet-header h2 { margin: 0; font-size: 24px; font-weight: 700; }
+        .sheet-header p { margin: 5px 0 0 0; font-size: 14px; color: var(--text-muted); font-style: italic; }
         
         .stat-grid { display: flex; justify-content: space-between; padding: 20px; background: #000; }
         .stat-box { flex: 1; text-align: center; }
         .stat-value { font-size: 24px; font-weight: 700; color: var(--ios-red); margin-bottom: 4px; }
-        .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
+        .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
+
+        .content-scroll { overflow-y: auto; padding-bottom: 30px; }
         
-        .log-container { flex-grow: 1; overflow-y: auto; padding: 0 20px 20px; }
-        .log-title { font-size: 15px; font-weight: 600; color: #fff; margin: 20px 0 10px; }
+        /* Sağlık Uygulaması Tarzı İstatistik Kartları */
+        .advanced-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 20px; }
+        .adv-card { background: #121212; border-radius: 16px; padding: 16px; border: 1px solid #292929; }
+        .adv-icon { font-size: 22px; margin-bottom: 8px; }
+        .adv-title { font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+        .adv-value { font-size: 17px; font-weight: 700; color: #fff; margin: 4px 0; line-height: 1.2; }
+        .adv-sub { font-size: 12px; color: var(--ios-blue); font-weight: 500; }
+
+        .log-container { padding: 0 20px; }
+        .log-title { font-size: 16px; font-weight: 600; color: #fff; margin: 10px 0; border-bottom: 1px solid #333; padding-bottom: 8px; }
         .log-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--separator); font-size: 14px; }
         .log-time { color: var(--text-main); font-variant-numeric: tabular-nums; }
         .log-gap { color: var(--text-muted); font-size: 12px; }
@@ -136,7 +145,6 @@
         <div style="padding: 20px; text-align: center; color: var(--text-muted); font-size: 14px;">Veriler yükleniyor...</div>
     </div>
 
-    <!-- Admin Özel Kullanıcı Ekleme Butonu -->
     <button class="admin-add-user" id="adminAddUserBtn" onclick="adminCreateUser()">+ Yeni Kullanıcı Ekle (Patron Özel)</button>
 
     <!-- Kişisel Bilanço Sheet -->
@@ -147,23 +155,31 @@
             <h2 id="sheetName">İsim</h2>
             <p id="sheetQuote">Söz</p>
         </div>
-        <div class="stat-grid">
-            <div class="stat-box">
-                <div class="stat-value" id="sheetTodayCost">0 ₺</div>
-                <div class="stat-label">Bugünkü Zarar</div>
+        <div class="content-scroll">
+            <div class="stat-grid">
+                <div class="stat-box">
+                    <div class="stat-value" id="sheetTodayCost">0 ₺</div>
+                    <div class="stat-label">Bugünkü Zarar</div>
+                </div>
+                <div class="stat-box" style="border-left: 1px solid #333; border-right: 1px solid #333;">
+                    <div class="stat-value" id="sheetWeekCount">0</div>
+                    <div class="stat-label">Haftalık Adet</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="sheetTotalCost">0 ₺</div>
+                    <div class="stat-label">Toplam Zarar</div>
+                </div>
             </div>
-            <div class="stat-box" style="border-left: 1px solid #333; border-right: 1px solid #333;">
-                <div class="stat-value" id="sheetWeekCount">0</div>
-                <div class="stat-label">Haftalık Adet</div>
+
+            <!-- Sağlık Tarzı Gelişmiş Kartlar -->
+            <div class="advanced-stats" id="advancedStats">
+                <!-- Javascript ile doldurulacak -->
             </div>
-            <div class="stat-box">
-                <div class="stat-value" id="sheetWeekCost">0 ₺</div>
-                <div class="stat-label">Haftalık Zarar</div>
+
+            <div class="log-container">
+                <div class="log-title">Bugünkü Zaman Çizelgesi</div>
+                <div id="logList"></div>
             </div>
-        </div>
-        <div class="log-container">
-            <div class="log-title">Bugünkü Zaman Çizelgesi</div>
-            <div id="logList"></div>
         </div>
     </div>
 
@@ -181,7 +197,8 @@
         const db = getDatabase(app);
         const countersRef = ref(db, "counters");
 
-        const COST_PER_ITEM = 4;
+        // Fiyat güncellendi (6 TL)
+        const COST_PER_ITEM = 6;
         let currentTab = 'daily';
         
         const days = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
@@ -249,29 +266,24 @@
             set(logRef, Date.now());
         };
 
-        // --- YENİ ADMİN KONTROLLERİ (Eski Veri Taşıma) ---
         window.adminCreateUser = async function() {
             const newName = prompt("Eklenecek kullanıcının adı nedir?");
             if (newName && newName.trim().length > 0) {
                 const cleanName = newName.trim();
                 const userRef = ref(db, "counters/" + sanitizeKey(cleanName));
                 const snapshot = await get(userRef);
-                if (!snapshot.exists()) {
-                    await update(userRef, { name: cleanName });
-                } else {
-                    alert("Bu isimde bir kullanıcı zaten var!");
-                }
+                if (!snapshot.exists()) await update(userRef, { name: cleanName });
+                else alert("Bu isimde bir kullanıcı zaten var!");
             }
         };
 
         window.adminAddMultiple = function(targetName, event) {
             event.stopPropagation();
-            const amount = parseInt(prompt(`${targetName} için eski veritabanından kaç adet sayı aktarılacak?`, "1"));
+            const amount = parseInt(prompt(`${targetName} için kaç adet sayı aktarılacak?`, "1"));
             if (!isNaN(amount) && amount > 0) {
                 update(ref(db, "counters/" + sanitizeKey(targetName)), { name: targetName });
                 for(let i=0; i<amount; i++) {
                     const logRef = push(ref(db, "counters/" + sanitizeKey(targetName) + "/logs"));
-                    // Logların hepsinin aynı saniyede görünmemesi için her kaydı 1 dakika geriye atarak kaydediyoruz
                     set(logRef, Date.now() - (i * 60000)); 
                 }
                 if (navigator.vibrate) navigator.vibrate([20]);
@@ -289,7 +301,7 @@
         };
         window.adminZero = function(targetName, event) {
             event.stopPropagation();
-            if(confirm("Kişinin BUGÜNKÜ tüm kayıtları silinsin mi?")) {
+            if(confirm("BUGÜNKÜ tüm kayıtlar silinsin mi?")) {
                 const startOfToday = getStartOfToday();
                 const user = usersData[sanitizeKey(targetName)];
                 if (user && user.logs) {
@@ -318,7 +330,9 @@
                 name: user.name,
                 todayCount: todayLogs.length,
                 weekCount: weekLogs.length,
-                todayLogs: todayLogs
+                totalCount: logsArray.length,
+                todayLogs: todayLogs,
+                allLogs: logsArray.sort((a,b) => a - b) // Gelişmiş istatistikler için sıralı
             };
         }
 
@@ -357,15 +371,106 @@
             });
         }
 
+        // Gelişmiş İstatistik Hesaplama Fonksiyonu
+        function calculateAdvancedStats(logs) {
+            if (logs.length === 0) return null;
+
+            const daysMap = {};
+            logs.forEach(t => {
+                const dateStr = new Date(t).toLocaleDateString('tr-TR');
+                if(!daysMap[dateStr]) daysMap[dateStr] = [];
+                daysMap[dateStr].push(t);
+            });
+
+            // 1. En az içtiği gün (0 dahil etmek zor çünkü log yok, minimum log olan günü buluyoruz)
+            let minDay = null; let minCount = Infinity;
+            for (let [date, dayLogs] of Object.entries(daysMap)) {
+                if (dayLogs.length < minCount) { minCount = dayLogs.length; minDay = date; }
+            }
+
+            // 2. Gece 12'den sonra en çok içilen gün (00:00 - 05:00 arası)
+            let maxNightDay = "Yok"; let maxNightCount = 0;
+            for (let [date, dayLogs] of Object.entries(daysMap)) {
+                let nightCount = dayLogs.filter(t => {
+                    const h = new Date(t).getHours();
+                    return h >= 0 && h < 5;
+                }).length;
+                if (nightCount > maxNightCount) { maxNightCount = nightCount; maxNightDay = date; }
+            }
+
+            // 3. Bir saat içinde en fazla (Kriz Anı)
+            let maxHourCount = 0; let maxHourTime = null;
+            for(let i=0; i<logs.length; i++) {
+                let countInHour = 1;
+                for(let j=i+1; j<logs.length; j++) {
+                    if (logs[j] - logs[i] <= 3600000) countInHour++; // 1 saat = 3600000 ms
+                    else break;
+                }
+                if (countInHour > maxHourCount) { maxHourCount = countInHour; maxHourTime = logs[i]; }
+            }
+
+            // 4. Peş peşe içme sayısı (Zincirleme - 15 dk altı)
+            let chainCount = 0;
+            for(let i=1; i<logs.length; i++) {
+                if (logs[i] - logs[i-1] <= 900000) chainCount++; // 15 dk = 900000 ms
+            }
+
+            return { minDay, minCount, maxNightDay, maxNightCount, maxHourCount, maxHourTime, chainCount };
+        }
+
         window.openUserSheet = function(user, quote) {
             if (isEditMode) return; 
             
             document.getElementById('sheetName').innerText = user.name;
             document.getElementById('sheetQuote').innerText = quote;
+            
+            // Temel Bilançolar
             document.getElementById('sheetTodayCost').innerText = (user.todayCount * COST_PER_ITEM) + " ₺";
             document.getElementById('sheetWeekCount').innerText = user.weekCount;
-            document.getElementById('sheetWeekCost').innerText = (user.weekCount * COST_PER_ITEM) + " ₺";
+            document.getElementById('sheetTotalCost').innerText = (user.totalCount * COST_PER_ITEM) + " ₺";
 
+            // Gelişmiş İstatistik Kartları Doldurma
+            const advContainer = document.getElementById('advancedStats');
+            const stats = calculateAdvancedStats(user.allLogs);
+            
+            if (!stats) {
+                advContainer.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); font-size: 13px;">Gelişmiş analiz için henüz yeterli veri yok.</div>';
+            } else {
+                let hourTimeStr = "Veri yok";
+                if(stats.maxHourTime) {
+                    const d = new Date(stats.maxHourTime);
+                    hourTimeStr = `${d.getDate()} ${d.toLocaleString('tr-TR', {month:'short'})} - ${d.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'})}`;
+                }
+
+                advContainer.innerHTML = `
+                    <div class="adv-card">
+                        <div class="adv-icon">🔥</div>
+                        <div class="adv-title">Kriz Anı (1 Saatte)</div>
+                        <div class="adv-value">${stats.maxHourCount} Adet</div>
+                        <div class="adv-sub">${hourTimeStr}</div>
+                    </div>
+                    <div class="adv-card">
+                        <div class="adv-icon">🦇</div>
+                        <div class="adv-title">Gece Mesaisi</div>
+                        <div class="adv-value">${stats.maxNightCount} Adet</div>
+                        <div class="adv-sub">${stats.maxNightDay} Gecesi</div>
+                    </div>
+                    <div class="adv-card">
+                        <div class="adv-icon">🚂</div>
+                        <div class="adv-title">Zincirleme</div>
+                        <div class="adv-value">${stats.chainCount} Kez</div>
+                        <div class="adv-sub">15 dk'dan kısa arayla</div>
+                    </div>
+                    <div class="adv-card">
+                        <div class="adv-icon">🌱</div>
+                        <div class="adv-title">İrade Günü</div>
+                        <div class="adv-value">${stats.minCount} Adet</div>
+                        <div class="adv-sub">${stats.minDay}</div>
+                    </div>
+                `;
+            }
+
+            // Bugünün Zaman Çizelgesi
             const logList = document.getElementById('logList');
             logList.innerHTML = '';
             
