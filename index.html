@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Sayaç</title>
+    <title>Tüketim Raporu</title>
     <style>
         :root {
             --bg-color: #000000; --card-bg: #1C1C1E; --text-main: #FFFFFF;
@@ -18,10 +18,12 @@
             display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow-x: hidden;
         }
 
-        .header { width: 100%; max-width: 400px; display: flex; justify-content: space-between; align-items: flex-end; margin-top: 10px; padding-bottom: 15px; }
+        .header { width: 100%; max-width: 400px; display: flex; justify-content: space-between; align-items: flex-end; margin-top: 10px; padding-bottom: 15px; position: relative; }
         .header h1 { font-size: 34px; font-weight: 700; margin: 0; letter-spacing: 0.5px; }
         .header .date { font-size: 13px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
-        .admin-edit-btn { color: var(--ios-blue); font-size: 17px; background: none; border: none; padding: 0; margin: 0 0 4px 0; cursor: pointer; display: none; font-weight: 400; }
+        
+        .admin-controls { display: flex; gap: 10px; display: none; }
+        .admin-btn { color: var(--ios-blue); font-size: 15px; background: rgba(10,132,255,0.15); border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-weight: 600; }
 
         .btn-container { margin: 20px 0 30px 0; display: flex; justify-content: center; }
         .btn-add {
@@ -32,102 +34,144 @@
         }
         .btn-add:active { transform: scale(0.94); color: rgba(50, 215, 75, 0.5); }
 
-        .segmented-control {
-            display: flex; background: rgba(118, 118, 128, 0.24); border-radius: 8px;
-            padding: 2px; width: 100%; max-width: 400px; margin-bottom: 20px;
-        }
-        .seg-btn {
-            flex: 1; text-align: center; padding: 6px 0; font-size: 13px; font-weight: 600;
-            color: var(--text-main); border: none; background: transparent; border-radius: 6px;
-            cursor: pointer; transition: 0.2s;
-        }
+        .segmented-control { display: flex; background: rgba(118, 118, 128, 0.24); border-radius: 8px; padding: 2px; width: 100%; max-width: 400px; margin-bottom: 20px; }
+        .seg-btn { flex: 1; text-align: center; padding: 6px 0; font-size: 13px; font-weight: 600; color: var(--text-main); border: none; background: transparent; border-radius: 6px; cursor: pointer; transition: 0.2s; }
         .seg-btn.active { background: #636366; box-shadow: 0 3px 8px rgba(0,0,0,0.12); }
 
         .list-container { width: 100%; max-width: 400px; background: var(--card-bg); border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
         .list-row { display: flex; align-items: center; padding: 14px 16px; position: relative; transition: transform 0.3s; background: var(--card-bg); cursor: pointer; }
         .list-row:not(:last-child)::after { content: ''; position: absolute; bottom: 0; left: 54px; right: 0; height: 0.5px; background: var(--separator); }
-        .list-row:active { background: #2C2C2E; }
-        
         .rank-badge { width: 30px; height: 30px; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 16px; margin-right: 14px; background: #2C2C2E; flex-shrink: 0; }
         .rank-first .rank-badge { background: var(--ios-red); color: white; }
         .rank-last .rank-badge { background: var(--ios-green); color: white; }
-
         .row-content { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; padding-right: 10px; }
         .row-name { font-size: 17px; font-weight: 500; line-height: 1.3; display: flex; align-items: center; }
         .inline-badges { font-size: 13px; margin-left: 6px; letter-spacing: 1px; }
         .row-quote { font-size: 13px; color: var(--text-muted); margin-top: 2px; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        
         .row-stats { display: flex; flex-direction: column; align-items: flex-end; min-width: 45px; }
         .row-score { font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
         .row-cost { font-size: 12px; color: var(--ios-red); font-weight: 500; margin-top: 2px; }
-        .rank-last .row-cost { color: var(--text-muted); }
 
-        /* Daraltılmış Admin Araçları (Taşmayı önler) */
         .admin-tools { position: absolute; right: -180px; height: 100%; top: 0; display: flex; align-items: center; opacity: 0; transition: all 0.3s; background: var(--card-bg); }
         .edit-mode .list-row { transform: translateX(-180px); }
         .edit-mode .admin-tools { opacity: 1; right: 0; }
         .tool-btn { height: 100%; width: 45px; border: none; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; cursor: pointer; font-size: 11px; font-weight: 600; gap: 4px; padding: 0;}
         .tool-add { background: var(--ios-blue); } .tool-sub { background: #FF9F0A; } .tool-zero { background: #8E8E93; } .tool-del { background: var(--ios-red); }
 
-        .admin-add-user {
-            display: none; width: 100%; max-width: 400px; padding: 14px;
-            background: rgba(10, 132, 255, 0.1); color: var(--ios-blue);
-            border: 1px dashed var(--ios-blue); border-radius: 12px;
-            text-align: center; font-size: 16px; font-weight: 600; cursor: pointer; margin-bottom: 30px;
-        }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; pointer-events: none; transition: 0.3s; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-card { background: #1C1C1E; border-radius: 14px; width: 90%; max-width: 360px; max-height: 85vh; overflow-y: auto; text-align: left; padding: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+        
+        /* Form & Input Stilleri */
+        .form-group { margin-bottom: 15px; }
+        .form-label { display: block; font-size: 14px; color: var(--text-muted); margin-bottom: 5px; font-weight: 600; }
+        .form-select, .form-input { width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 12px; border-radius: 8px; font-size: 15px; outline: none; }
+        .primary-btn { width: 100%; background: var(--ios-blue); color: white; border: none; padding: 14px; font-size: 16px; font-weight: 600; border-radius: 10px; cursor: pointer; margin-top: 10px; }
+        .close-btn { width: 100%; background: transparent; color: var(--ios-red); border: 1px solid rgba(255,59,48,0.3); padding: 14px; font-size: 16px; font-weight: 600; border-radius: 10px; cursor: pointer; margin-top: 10px; }
 
+        /* Profil / Alt Sayfa Stilleri */
         .sheet-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 100; opacity: 0; pointer-events: none; transition: 0.3s; }
         .sheet-overlay.active { opacity: 1; pointer-events: auto; }
         .bottom-sheet { position: fixed; bottom: -100%; left: 0; width: 100%; background: #1C1C1E; border-radius: 24px 24px 0 0; z-index: 101; transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; flex-direction: column; max-height: 90vh; }
         .bottom-sheet.active { bottom: 0; }
         .sheet-handle { width: 40px; height: 5px; background: #555; border-radius: 3px; margin: 12px auto; }
         .sheet-header { padding: 10px 20px 20px; text-align: center; border-bottom: 1px solid var(--separator); }
-        .sheet-header h2 { margin: 0; font-size: 24px; font-weight: 700; }
-        .sheet-header p { margin: 5px 0 0 0; font-size: 14px; color: var(--text-muted); font-style: italic; }
+        .content-scroll { overflow-y: auto; padding-bottom: 30px; }
         
         .stat-grid { display: flex; justify-content: space-between; padding: 20px; background: #000; }
         .stat-box { flex: 1; text-align: center; }
         .stat-value { font-size: 24px; font-weight: 700; color: var(--ios-red); margin-bottom: 4px; }
         .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
 
-        .content-scroll { overflow-y: auto; padding-bottom: 30px; }
-        
-        .badge-list { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 20px 20px; }
-        .badge-item { background: #121212; border: 1px solid #333; border-radius: 12px; padding: 10px; display: flex; align-items: center; gap: 10px; width: calc(50% - 4px); }
-        .badge-icon { font-size: 24px; }
-        .badge-info { display: flex; flex-direction: column; }
-        .badge-title { font-size: 12px; font-weight: 600; color: #fff; }
-        .badge-desc { font-size: 10px; color: var(--text-muted); line-height: 1.2; margin-top: 2px;}
+        .life-card { margin: 20px; padding: 16px; border-radius: 16px; background: linear-gradient(135deg, rgba(50,215,75,0.15) 0%, rgba(50,215,75,0.05) 100%); border: 1px solid rgba(50,215,75,0.2); display: flex; align-items: center; gap: 15px; }
+        .life-card.negative { background: linear-gradient(135deg, rgba(255,69,58,0.15) 0%, rgba(255,69,58,0.05) 100%); border-color: rgba(255,69,58,0.2); }
+        .life-icon { font-size: 32px; }
+        .life-text h4 { margin: 0 0 4px 0; font-size: 15px; color: #fff; }
+        .life-text p { margin: 0; font-size: 13px; color: var(--text-muted); line-height: 1.4; }
 
+        .test-banner { margin: 20px; padding: 15px; border-radius: 12px; background: rgba(10,132,255,0.1); border: 1px dashed var(--ios-blue); text-align: center; cursor: pointer; color: var(--ios-blue); font-weight: 600; font-size: 15px; }
+        
         .advanced-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 20px 20px; }
         .adv-card { background: #121212; border-radius: 16px; padding: 16px; border: 1px solid #292929; }
         .adv-icon { font-size: 22px; margin-bottom: 8px; }
         .adv-title { font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
-        .adv-value { font-size: 17px; font-weight: 700; color: #fff; margin: 4px 0; line-height: 1.2; }
+        .adv-value { font-size: 17px; font-weight: 700; color: #fff; margin: 4px 0; }
         .adv-sub { font-size: 12px; color: var(--ios-blue); font-weight: 500; }
 
-        .log-container { padding: 0 20px; }
+        .badge-list { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 20px 20px; }
+        .badge-item { background: #121212; border: 1px solid #333; border-radius: 12px; padding: 10px; display: flex; align-items: center; gap: 10px; width: calc(50% - 4px); }
         .section-title { font-size: 16px; font-weight: 600; color: #fff; margin: 15px 20px 10px; }
-        .log-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--separator); font-size: 14px; }
-        .log-time { color: var(--text-main); font-variant-numeric: tabular-nums; }
-        .log-gap { color: var(--text-muted); font-size: 12px; }
-
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-card { background: #1C1C1E; border-radius: 14px; width: 270px; text-align: center; overflow: hidden; }
-        .modal-card-content { padding: 20px; }
-        .modal-card h2 { margin: 0 0 6px 0; font-size: 18px; font-weight: 600; }
-        .modal-input { width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 10px; border-radius: 6px; font-size: 15px; outline: none; text-align: center; margin-top: 15px; }
-        .modal-btn { width: 100%; background: transparent; color: var(--ios-blue); border: none; border-top: 0.5px solid rgba(84, 84, 88, 0.65); padding: 14px; font-size: 17px; font-weight: 600; cursor: pointer; }
     </style>
 </head>
 <body>
+    <!-- İlk Giriş Modalı -->
     <div id="loginModal" class="modal-overlay">
+        <div class="modal-card" style="text-align: center;">
+            <h2 style="margin-top:0;">Sayaca Katıl</h2>
+            <input type="text" id="nameInput" class="form-input" placeholder="Adın nedir?" autocomplete="off" maxlength="15" style="text-align:center; margin:15px 0;">
+            <button class="primary-btn" onclick="saveName()">Giriş Yap</button>
+        </div>
+    </div>
+
+    <!-- Admin Yönetim Paneli Modalı -->
+    <div id="adminPanelModal" class="modal-overlay">
         <div class="modal-card">
-            <div class="modal-card-content">
-                <h2>Sayaca Katıl</h2>
-                <input type="text" id="nameInput" class="modal-input" placeholder="Adın nedir?" autocomplete="off" maxlength="15">
+            <h2 style="margin-top:0; border-bottom:1px solid #333; padding-bottom:10px;">⚙️ Tanrı Modu Paneli</h2>
+            
+            <div class="form-group">
+                <label class="form-label">Kullanıcı Seçin</label>
+                <select id="adminUserSelect" class="form-select" onchange="loadAdminUserSettings()"></select>
             </div>
-            <button class="modal-btn" onclick="saveName()">Giriş Yap</button>
+
+            <div class="form-group">
+                <label class="form-label">İstatistik/Rozet Başlangıç Tarihi</label>
+                <p style="font-size:11px; color:#888; margin:0 0 5px 0;">Eski hatalı verileri analizden dışlamak için bir tarih seçin.</p>
+                <input type="date" id="adminStartDate" class="form-input">
+            </div>
+
+            <h3 style="font-size:15px; margin-top:20px;">Manuel Rozet Yönetimi</h3>
+            <div id="adminBadgesContainer"></div>
+
+            <button class="primary-btn" onclick="saveAdminSettings()">Kaydet</button>
+            <button class="close-btn" onclick="document.getElementById('adminPanelModal').classList.remove('active')">Kapat</button>
+        </div>
+    </div>
+
+    <!-- Fagerström Test Modalı -->
+    <div id="fagerstromModal" class="modal-overlay">
+        <div class="modal-card">
+            <h2 style="margin-top:0;">Bağımlılık Analizi</h2>
+            <p style="font-size:13px; color:#aaa; margin-bottom:20px;">Gerçekleri yüzüne vurmamız için dürüst cevap ver.</p>
+            
+            <div class="form-group">
+                <label class="form-label">1. Uyandıktan ne kadar sonra ilk sigaranı içersin?</label>
+                <select id="f1" class="form-select">
+                    <option value="3">İlk 5 dakika içinde</option>
+                    <option value="2">6 - 30 dakika içinde</option>
+                    <option value="1">31 - 60 dakika içinde</option>
+                    <option value="0">1 saatten fazla</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">2. Günde ortalama kaç adet içiyorsun?</label>
+                <select id="f2" class="form-select">
+                    <option value="3">31 ve daha fazla</option>
+                    <option value="2">21 - 30 arası</option>
+                    <option value="1">11 - 20 arası</option>
+                    <option value="0">10 ve daha az</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">3. Sabahları, günün diğer saatlerine göre daha mı çok içersin?</label>
+                <select id="f3" class="form-select"><option value="1">Evet</option><option value="0">Hayır</option></select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">4. Hasta ve yatarken bile içer misin?</label>
+                <select id="f4" class="form-select"><option value="1">Evet</option><option value="0">Hayır</option></select>
+            </div>
+
+            <button class="primary-btn" onclick="submitFagerstrom()">Analizi Tamamla</button>
+            <button class="close-btn" onclick="document.getElementById('fagerstromModal').classList.remove('active')">Vazgeç</button>
         </div>
     </div>
 
@@ -136,7 +180,10 @@
             <div class="date" id="dateText">Pazartesi</div>
             <h1>Tüketim Raporu</h1>
         </div>
-        <button class="admin-edit-btn" id="editBtn" onclick="toggleEditMode()">Düzenle</button>
+        <div class="admin-controls" id="adminControls">
+            <button class="admin-btn" onclick="document.getElementById('adminPanelModal').classList.add('active')">⚙️ Panel</button>
+            <button class="admin-btn" id="editBtn" onclick="toggleEditMode()">Liste Düzenle</button>
+        </div>
     </div>
 
     <div class="segmented-control">
@@ -144,17 +191,10 @@
         <button class="seg-btn" id="tabWeekly" onclick="setTab('weekly')">Haftalık Utanç Tablosu</button>
     </div>
 
-    <div class="btn-container">
-        <button class="btn-add" id="mainBtn" onclick="addSmoke()">+1</button>
-    </div>
+    <div class="btn-container"><button class="btn-add" id="mainBtn" onclick="addSmoke()">+1</button></div>
+    <div class="list-container" id="leaderboard"><div style="padding: 20px; text-align: center; color: var(--text-muted);">Veriler yükleniyor...</div></div>
 
-    <div class="list-container" id="leaderboard">
-        <div style="padding: 20px; text-align: center; color: var(--text-muted); font-size: 14px;">Veriler yükleniyor...</div>
-    </div>
-
-    <button class="admin-add-user" id="adminAddUserBtn" onclick="adminCreateUser()">+ Yeni Kullanıcı Ekle (Patron Özel)</button>
-
-    <!-- Kişisel Bilanço Sheet -->
+    <!-- Kullanıcı Profili (Sheet) -->
     <div class="sheet-overlay" id="sheetOverlay" onclick="closeSheet()"></div>
     <div class="bottom-sheet" id="userSheet">
         <div class="sheet-handle"></div>
@@ -163,30 +203,21 @@
             <p id="sheetQuote">Söz</p>
         </div>
         <div class="content-scroll">
+            <!-- Fagerström ve Ömür Alanı -->
+            <div id="fagerstromArea"></div>
+            <div id="lifeStatsArea"></div>
+
             <div class="stat-grid">
-                <div class="stat-box">
-                    <div class="stat-value" id="sheetTodayCost">0 ₺</div>
-                    <div class="stat-label">Bugünkü Zarar</div>
-                </div>
-                <div class="stat-box" style="border-left: 1px solid #333; border-right: 1px solid #333;">
-                    <div class="stat-value" id="sheetWeekCount">0</div>
-                    <div class="stat-label">Haftalık Adet</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value" id="sheetTotalCost">0 ₺</div>
-                    <div class="stat-label">Toplam Zarar</div>
-                </div>
+                <div class="stat-box"><div class="stat-value" id="sheetTodayCost">0 ₺</div><div class="stat-label">Bugünkü Zarar</div></div>
+                <div class="stat-box" style="border-left: 1px solid #333; border-right: 1px solid #333;"><div class="stat-value" id="sheetWeekCount">0</div><div class="stat-label">Haftalık Adet</div></div>
+                <div class="stat-box"><div class="stat-value" id="sheetTotalCost">0 ₺</div><div class="stat-label">Toplam Zarar</div></div>
             </div>
 
-            <!-- ROZETLER BÖLÜMÜ -->
             <div class="section-title" id="badgeTitle" style="display:none;">Kazanılan Rozetler</div>
             <div class="badge-list" id="sheetBadges"></div>
 
             <div class="section-title">Sağlık ve Alışkanlık Analizi</div>
             <div class="advanced-stats" id="advancedStats"></div>
-
-            <div class="section-title">Bugünkü Zaman Çizelgesi</div>
-            <div class="log-container" id="logList"></div>
         </div>
     </div>
 
@@ -205,7 +236,9 @@
         const countersRef = ref(db, "counters");
 
         const COST_PER_ITEM = 6;
+        const MINS_LOST_PER_CIG = 11; // Tıbbi Ortalama
         let currentTab = 'daily';
+        let currentUserForSheet = null;
         
         const days = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
         document.getElementById('dateText').innerText = days[new Date().getDay()];
@@ -214,14 +247,11 @@
         const isAdmin = urlParams.get('admin') === 'patron';
         let isEditMode = false;
         
-        if (isAdmin) {
-            document.getElementById('editBtn').style.display = 'block';
-            document.getElementById('adminAddUserBtn').style.display = 'block';
-        }
+        if (isAdmin) document.getElementById('adminControls').style.display = 'flex';
 
         window.toggleEditMode = function() {
             isEditMode = !isEditMode;
-            document.getElementById('editBtn').innerText = isEditMode ? 'Bitti' : 'Düzenle';
+            document.getElementById('editBtn').innerText = isEditMode ? 'Bitti' : 'Liste Düzenle';
             document.getElementById('leaderboard').classList.toggle('edit-mode');
         };
 
@@ -232,45 +262,43 @@
             renderLeaderboard();
         };
 
-        let myName = localStorage.getItem("sayac_ios_v5");
+        let myName = localStorage.getItem("sayac_ios_v6");
         let usersData = {};
         function sanitizeKey(name) { return name.replace(/[.#$[\]/]/g, "_"); }
-        if (myName) document.getElementById("loginModal").style.display = "none";
+        
+        if (myName) document.getElementById("loginModal").classList.remove('active');
+        else document.getElementById("loginModal").classList.add('active');
 
-        const q0 = ["Ciğerleri Alp dağları gibi tertemiz.", "Büyük ihtimalle yalan söylüyor.", "Ortamda pasif içicilikten besleniyor.", "Sağlıklı yaşam gurusu.", "Ya unuttu ya da yemin etti, sıfır çekiyor."];
-        const q1 = ["Kahvaltı niyetine bir tane yakmış garibim.", "Sadece kahve yanına eşlik etsin diye içiyor.", "Tuvalette gizli gizli bir tane tellendirmiş.", "Ağzında sadece hafif bir kül tadı var."];
-        const q2 = ["Maaşın yarısı tekele gidiyor.", "Sarı diş sendromu %60 tamamlandı.", "Oksijen seviyesi İstanbul trafiği kadar tıkalı.", "Günde yarım paket, ömürden yarım sene."];
-        const q3 = ["Balgamıyla dubleks ev duvarı örebilir.", "Yürüyen Çernobil, radyasyon saçıyor.", "Morgda VIP sırasını şimdiden ayırttı.", "Bir paket yetmez, ikinciye saldırdı."];
-        const q4 = ["Otopsi raporu: %90 Tütün, %10 Et.", "Azrail ile kanka olmuş, okeye dönüyorlar.", "Akciğerlerini çamaşır suyuyla yıkasan açılmaz.", "Günde 2 paket! Küllükte doğmuş bir mutant."];
+        // ŞAKALAR & ROZETLER
+        const q0 = ["Ciğerleri Alp dağları gibi tertemiz.", "Büyük ihtimalle yalan söylüyor.", "Ortamda pasif içicilikten besleniyor."];
+        const q1 = ["Kahvaltı niyetine bir tane yakmış garibim.", "Sadece kahve yanına eşlik etsin diye içiyor.", "Ağzında sadece hafif bir kül tadı var."];
+        const q2 = ["Maaşın yarısı tekele gidiyor.", "Sarı diş sendromu %60 tamamlandı.", "Oksijen seviyesi İstanbul trafiği kadar tıkalı."];
+        const q3 = ["Balgamıyla dubleks ev duvarı örebilir.", "Yürüyen Çernobil, radyasyon saçıyor.", "Morgda VIP sırasını şimdiden ayırttı."];
+        const q4 = ["Otopsi raporu: %90 Tütün, %10 Et.", "Azrail ile kanka olmuş, okeye dönüyorlar.", "Akciğerlerini çamaşır suyuyla yıkasan açılmaz."];
+        function getRandomQuote(count) {
+            let p = count === 0 ? q0 : count <= 5 ? q1 : count <= 15 ? q2 : count <= 25 ? q3 : q4;
+            return p[Math.floor(Math.random() * p.length)];
+        }
 
         const BADGES = {
-            baca: { icon: "🏭", title: "Yürüyen Baca", desc: "1 saatte 4'ten fazla içme krizi" },
-            zincir: { icon: "🔗", title: "Zincirleme", desc: "Söndürmeden peş peşe yakma" },
+            baca: { icon: "🏭", title: "Yürüyen Baca", desc: "1 saatte 4'ten fazla içti" },
+            zincir: { icon: "🔗", title: "Zincirleme", desc: "15 dk'dan kısa arayla peş peşe yaktı" },
             vampir: { icon: "🦇", title: "Gece Vardiyası", desc: "Gece 00:00'dan sonra ağır mesai" },
-            horoz: { icon: "🐓", title: "Erken Öten", desc: "Sabahın köründe (05-07) uyanır uyanmaz" },
+            horoz: { icon: "🐓", title: "Erken Öten", desc: "Sabahın köründe (05-07) uyandı" },
             fotosentez: { icon: "🌲", title: "Fotosentez", desc: "Bugün 0 çekerek bitkiye bağladı" },
-            emzik: { icon: "🍼", title: "Emzik", desc: "Ortalaması çok düşük, tatlı su tiryakisi" },
-            vip: { icon: "💸", title: "VIP Sponsor", desc: "Haftanın en çok para harcayanı" },
-            yuz: { icon: "💀", title: "100 Kulübü", desc: "100 barajını aştı, organlar iptal" }
+            emzik: { icon: "🍼", title: "Emzik", desc: "Tatlı su tiryakisi" },
+            vip: { icon: "💸", title: "VIP Sponsor", desc: "Haftanın en çok harcayanı" },
+            yuz: { icon: "💀", title: "100 Kulübü", desc: "100 barajını aştı" }
         };
 
-        function getRandomQuote(count) {
-            let pool = count === 0 ? q0 : count <= 5 ? q1 : count <= 15 ? q2 : count <= 25 ? q3 : q4;
-            return pool[Math.floor(Math.random() * pool.length)];
-        }
-
         function getStartOfToday() { const d = new Date(); d.setHours(0,0,0,0); return d.getTime(); }
-        function getStartOfWeek() { 
-            const d = new Date(); d.setHours(0,0,0,0);
-            const day = d.getDay(); const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-            return new Date(d.setDate(diff)).getTime(); 
-        }
+        function getStartOfWeek() { const d = new Date(); d.setHours(0,0,0,0); const day = d.getDay(); return new Date(d.setDate(d.getDate() - day + (day === 0 ? -6 : 1))).getTime(); }
 
         window.saveName = function() {
             const input = document.getElementById("nameInput").value.trim();
             if (input.length > 0) {
-                myName = input; localStorage.setItem("sayac_ios_v5", myName);
-                document.getElementById("loginModal").style.display = "none";
+                myName = input; localStorage.setItem("sayac_ios_v6", myName);
+                document.getElementById("loginModal").classList.remove('active');
                 update(ref(db, "counters/" + sanitizeKey(myName)), { name: myName });
             }
         };
@@ -279,86 +307,110 @@
             if (!myName) return;
             if (navigator.vibrate) navigator.vibrate([20]);
             update(ref(db, "counters/" + sanitizeKey(myName)), { name: myName });
-            const logRef = push(ref(db, "counters/" + sanitizeKey(myName) + "/logs"));
-            set(logRef, Date.now());
+            push(ref(db, "counters/" + sanitizeKey(myName) + "/logs"), Date.now());
         };
 
-        window.adminCreateUser = async function() {
-            const newName = prompt("Eklenecek kullanıcının adı nedir?");
-            if (newName && newName.trim().length > 0) {
-                const cleanName = newName.trim();
-                const userRef = ref(db, "counters/" + sanitizeKey(cleanName));
-                const snapshot = await get(userRef);
-                if (!snapshot.exists()) await update(userRef, { name: cleanName });
-                else alert("Bu isimde bir kullanıcı zaten var!");
-            }
+        // --- ADMİN PANELİ İŞLEMLERİ ---
+        window.loadAdminUserSettings = function() {
+            const userKey = document.getElementById('adminUserSelect').value;
+            if(!userKey || !usersData[userKey]) return;
+            const uData = usersData[userKey].adminSettings || {};
+            
+            // Tarih Ayarı
+            if(uData.statsStartDate) {
+                document.getElementById('adminStartDate').value = new Date(uData.statsStartDate).toISOString().split('T')[0];
+            } else { document.getElementById('adminStartDate').value = ""; }
+
+            // Rozet Ayarları
+            const manualBadges = uData.manualBadges || {};
+            let html = "";
+            Object.keys(BADGES).forEach(bKey => {
+                const val = manualBadges[bKey]; // "forceOn", "forceOff" veya undefined
+                html += `
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #333; padding:8px 0;">
+                    <span style="font-size:14px;">${BADGES[bKey].icon} ${BADGES[bKey].title}</span>
+                    <select id="badge_${bKey}" class="form-select" style="width:120px; padding:6px; font-size:13px;">
+                        <option value="auto" ${!val || val==='auto' ? 'selected':''}>Otomatik</option>
+                        <option value="forceOn" ${val==='forceOn' ? 'selected':''}>Zorla Ver</option>
+                        <option value="forceOff" ${val==='forceOff' ? 'selected':''}>Zorla Al</option>
+                    </select>
+                </div>`;
+            });
+            document.getElementById('adminBadgesContainer').innerHTML = html;
         };
 
-        // KUSURSUZ DOĞAL VERİ EKLEME (12 Saatte 1 Dağıtım)
-        window.adminAddMultiple = function(targetName, event) {
-            event.stopPropagation();
-            const amount = parseInt(prompt(`${targetName} için kaç adet eski sayı aktarılacak?`, "10"));
-            if (!isNaN(amount) && amount > 0) {
-                update(ref(db, "counters/" + sanitizeKey(targetName)), { name: targetName });
-                
-                const now = Date.now();
-                // Her log arasına tam 12 saat boşluk koyuyoruz. İstatistikleri ASLA bozmaz.
-                const interval = 12 * 60 * 60 * 1000; 
-                
-                for(let i=0; i<amount; i++) {
-                    const logRef = push(ref(db, "counters/" + sanitizeKey(targetName) + "/logs"));
-                    set(logRef, now - ((i + 1) * interval)); 
-                }
-                if (navigator.vibrate) navigator.vibrate([20]);
-                alert(`Başarılı! Toplam ${amount} adet kayıt eklendi. Yansımayı ekrandaki (Tpl: ...) yazısında hemen görebilirsiniz.`);
-            }
+        window.saveAdminSettings = function() {
+            const userKey = document.getElementById('adminUserSelect').value;
+            const dateVal = document.getElementById('adminStartDate').value;
+            let manualBadges = {};
+            Object.keys(BADGES).forEach(bKey => {
+                const val = document.getElementById(`badge_${bKey}`).value;
+                if(val !== 'auto') manualBadges[bKey] = val;
+            });
+
+            let payload = { manualBadges: manualBadges };
+            if(dateVal) payload.statsStartDate = new Date(dateVal).getTime();
+            else payload.statsStartDate = null;
+
+            update(ref(db, `counters/${userKey}/adminSettings`), payload).then(() => {
+                alert("Ayarlar Kaydedildi!");
+                document.getElementById('adminPanelModal').classList.remove('active');
+            });
         };
 
-        window.adminSub = function(targetName, event) {
-            event.stopPropagation();
-            const user = usersData[sanitizeKey(targetName)];
-            if (user && user.logs) {
-                const logs = Object.entries(user.logs).sort((a,b) => b[1] - a[1]); 
-                if (logs.length > 0) remove(ref(db, `counters/${sanitizeKey(targetName)}/logs/${logs[0][0]}`));
-            }
-            if (navigator.vibrate) navigator.vibrate([20]);
-        };
-        window.adminZero = function(targetName, event) {
-            event.stopPropagation();
-            if(confirm("BUGÜNKÜ tüm kayıtlar silinsin mi?")) {
-                const startOfToday = getStartOfToday();
-                const user = usersData[sanitizeKey(targetName)];
-                if (user && user.logs) {
-                    Object.entries(user.logs).forEach(([logId, timestamp]) => {
-                        if (timestamp >= startOfToday) remove(ref(db, `counters/${sanitizeKey(targetName)}/logs/${logId}`));
-                    });
-                }
-            }
-        };
-        window.adminDel = function(targetName, event) {
-            event.stopPropagation();
-            if(confirm("Kişiyi tamamen SİL. Emin misin?")) remove(ref(db, "counters/" + sanitizeKey(targetName))); 
+        // --- FAGERSTRÖM TESTİ ---
+        window.openFagerstrom = function() { document.getElementById('fagerstromModal').classList.add('active'); };
+        window.submitFagerstrom = function() {
+            if(!currentUserForSheet) return;
+            const score = parseInt(document.getElementById('f1').value) + parseInt(document.getElementById('f2').value) + parseInt(document.getElementById('f3').value) + parseInt(document.getElementById('f4').value);
+            
+            // Taban çizgisini Q2'den (Günde kaç adet) çekiyoruz. 0(<10: 7), 1(11-20: 15), 2(21-30: 25), 3(>30: 40)
+            const q2Val = parseInt(document.getElementById('f2').value);
+            const baseline = q2Val === 0 ? 7 : q2Val === 1 ? 15 : q2Val === 2 ? 25 : 40;
+
+            let resultText = "";
+            if(score <= 3) resultText = "Hafif Bağımlı. Şimdilik sadece poz kesiyorsun ama yolun sonu karanlık.";
+            else if(score <= 6) resultText = "Orta Bağımlı. Ciğerlerin alarm veriyor, 'bırakırım ya' yalanlarına inanmayı kes.";
+            else resultText = "Ağır Bağımlı. Damarlarında kan değil saf zift dolaşıyor. Oksijenle arana mesafe koymuşsun.";
+
+            update(ref(db, `counters/${sanitizeKey(currentUserForSheet.name)}/fagerstrom`), { score, baseline, resultText }).then(() => {
+                document.getElementById('fagerstromModal').classList.remove('active');
+                closeSheet(); // Yenilenmesi için kapat
+            });
         };
 
-        onValue(countersRef, (snapshot) => { usersData = snapshot.val() || {}; renderLeaderboard(); });
+        // Tablo İşlemleri
+        onValue(countersRef, (snapshot) => {
+            usersData = snapshot.val() || {};
+            
+            // Admin paneli için listeyi güncelle
+            if(isAdmin) {
+                const select = document.getElementById('adminUserSelect');
+                const currVal = select.value;
+                select.innerHTML = '<option value="">Seçiniz...</option>';
+                Object.keys(usersData).forEach(k => { if(usersData[k].name) select.innerHTML += `<option value="${k}">${usersData[k].name}</option>`; });
+                select.value = currVal;
+            }
+            renderLeaderboard(); 
+        });
 
         function processUserData(user) {
-            const logsArray = user.logs ? Object.values(user.logs) : [];
-            const startOfToday = getStartOfToday();
-            const startOfWeek = getStartOfWeek();
-            
-            const todayLogs = logsArray.filter(t => t >= startOfToday).sort((a,b) => b - a);
-            const weekLogs = logsArray.filter(t => t >= startOfWeek);
-            const allLogs = logsArray.sort((a,b) => a - b);
+            const logsArray = user.logs ? Object.values(user.logs).sort((a,b)=>a-b) : [];
+            const adminSet = user.adminSettings || {};
+            const validLogs = adminSet.statsStartDate ? logsArray.filter(t => t >= adminSet.statsStartDate) : logsArray;
+
+            const sToday = getStartOfToday(); const sWeek = getStartOfWeek();
+            const todayLogs = validLogs.filter(t => t >= sToday);
             
             return {
                 name: user.name,
                 todayCount: todayLogs.length,
-                weekCount: weekLogs.length,
-                totalCount: logsArray.length,
+                weekCount: validLogs.filter(t => t >= sWeek).length,
+                totalCount: validLogs.length, // Sadece geçerli loglar
                 todayLogs: todayLogs,
-                allLogs: allLogs,
-                firstLogTime: allLogs.length > 0 ? allLogs[0] : Date.now()
+                allLogs: validLogs,
+                adminSettings: adminSet,
+                fagerstrom: user.fagerstrom || null
             };
         }
 
@@ -371,100 +423,83 @@
                 daysMap[dateStr].push(t);
             });
             let minDay = null; let minCount = Infinity;
-            for (let [date, dayLogs] of Object.entries(daysMap)) {
-                if (dayLogs.length < minCount) { minCount = dayLogs.length; minDay = date; }
-            }
+            for (let [date, dayLogs] of Object.entries(daysMap)) { if (dayLogs.length < minCount) { minCount = dayLogs.length; minDay = date; } }
             let maxNightDay = "Yok"; let maxNightCount = 0;
             for (let [date, dayLogs] of Object.entries(daysMap)) {
-                let nightCount = dayLogs.filter(t => {
-                    const h = new Date(t).getHours();
-                    return h >= 0 && h < 5;
-                }).length;
+                let nightCount = dayLogs.filter(t => { const h = new Date(t).getHours(); return h >= 0 && h < 5; }).length;
                 if (nightCount > maxNightCount) { maxNightCount = nightCount; maxNightDay = date; }
             }
             let maxHourCount = 0; let maxHourTime = null;
             for(let i=0; i<logs.length; i++) {
                 let countInHour = 1;
-                for(let j=i+1; j<logs.length; j++) {
-                    if (logs[j] - logs[i] <= 3600000) countInHour++; 
-                    else break;
-                }
+                for(let j=i+1; j<logs.length; j++) { if (logs[j] - logs[i] <= 3600000) countInHour++; else break; }
                 if (countInHour > maxHourCount) { maxHourCount = countInHour; maxHourTime = logs[i]; }
             }
             let chainCount = 0;
-            for(let i=1; i<logs.length; i++) {
-                if (logs[i] - logs[i-1] <= 900000) chainCount++; 
-            }
+            for(let i=1; i<logs.length; i++) { if (logs[i] - logs[i-1] <= 900000) chainCount++; }
             return { minDay, minCount, maxNightDay, maxNightCount, maxHourCount, maxHourTime, chainCount };
         }
 
-        function calculateUserBadges(statsObj, isVip, todayLogs, totalCount, firstLogTime) {
-            let badges = [];
-            if (!statsObj) {
-                if (totalCount === 0) badges.push('fotosentez');
-                return badges;
+        function calculateUserBadges(statsObj, isVip, todayLogs, totalCount, adminSettings) {
+            let autoBadges = [];
+            if (statsObj) {
+                if (statsObj.maxHourCount >= 4) autoBadges.push('baca');
+                if (statsObj.chainCount >= 3) autoBadges.push('zincir');
+                if (statsObj.maxNightCount >= 4) autoBadges.push('vampir');
             }
-            if (statsObj.maxHourCount > 4) badges.push('baca');
-            if (statsObj.chainCount >= 3) badges.push('zincir');
-            if (statsObj.maxNightCount >= 4) badges.push('vampir');
-            const hasEarly = todayLogs.some(t => { const h = new Date(t).getHours(); return h >= 5 && h < 7; });
-            if (hasEarly) badges.push('horoz');
-            if (todayLogs.length === 0 && totalCount > 0) badges.push('fotosentez');
-            const daysActive = Math.max(1, (Date.now() - firstLogTime) / (1000 * 3600 * 24));
-            if (daysActive > 3 && (totalCount / daysActive) <= 1.5 && todayLogs.length > 0) badges.push('emzik');
-            if (isVip) badges.push('vip');
-            if (totalCount >= 100) badges.push('yuz');
-            return badges;
+            if (todayLogs.some(t => { const h = new Date(t).getHours(); return h >= 5 && h < 7; })) autoBadges.push('horoz');
+            if (todayLogs.length === 0 && totalCount > 0) autoBadges.push('fotosentez');
+            if (isVip) autoBadges.push('vip');
+            if (totalCount >= 100) autoBadges.push('yuz');
+
+            // Admin Override (Data Poisoning Yönetimi)
+            let finalBadges = new Set(autoBadges);
+            const mB = adminSettings.manualBadges || {};
+            Object.keys(BADGES).forEach(b => {
+                if(mB[b] === 'forceOn') finalBadges.add(b);
+                if(mB[b] === 'forceOff') finalBadges.delete(b);
+            });
+            return Array.from(finalBadges);
         }
 
         function renderLeaderboard() {
             const board = document.getElementById("leaderboard");
             const processedUsers = Object.values(usersData).filter(u => u && u.name).map(processUserData);
-
             if (processedUsers.length === 0) { board.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted);">Kimse yok.</div>'; return; }
 
             const maxWeek = Math.max(...processedUsers.map(u => u.weekCount));
-
             processedUsers.sort((a, b) => currentTab === 'daily' ? b.todayCount - a.todayCount : b.weekCount - a.weekCount);
             board.innerHTML = "";
 
             processedUsers.forEach((user, index) => {
                 const count = currentTab === 'daily' ? user.todayCount : user.weekCount;
-                let badgeClass = "rank-mid"; let icon = `<span style="font-size:12px; font-weight:700;">${index+1}</span>`; let costColor = "var(--text-muted)";
-                
-                if (index === 0 && count > 0 && processedUsers.length > 1) { badgeClass = "rank-first"; icon = "💀"; costColor = "var(--ios-red)"; } 
-                else if (index === processedUsers.length - 1 && processedUsers.length > 1) { badgeClass = "rank-last"; icon = "🌿"; costColor = "var(--text-muted)"; }
+                let badgeClass = "rank-mid"; let icon = `<span style="font-size:12px; font-weight:700;">${index+1}</span>`;
+                if (index === 0 && count > 0 && processedUsers.length > 1) { badgeClass = "rank-first"; icon = "💀"; } 
+                else if (index === processedUsers.length - 1 && processedUsers.length > 1) { badgeClass = "rank-last"; icon = "🌿"; }
 
                 const stats = calculateAdvancedStats(user.allLogs);
-                const isVip = user.weekCount === maxWeek && user.weekCount > 0;
-                user.earnedBadges = calculateUserBadges(stats, isVip, user.todayLogs, user.totalCount, user.firstLogTime);
-                
+                user.earnedBadges = calculateUserBadges(stats, (user.weekCount === maxWeek && user.weekCount > 0), user.todayLogs, user.totalCount, user.adminSettings);
                 let badgeIconsHtml = user.earnedBadges.map(b => BADGES[b].icon).join('');
 
-                const dynamicQuote = getRandomQuote(user.todayCount);
+                const quote = getRandomQuote(user.todayCount);
                 const costStr = count > 0 ? `💸 ${count * COST_PER_ITEM} ₺` : "Tertemiz";
 
                 const row = document.createElement("div"); row.className = "list-row";
-                row.onclick = () => openUserSheet(user, dynamicQuote, stats);
+                row.onclick = () => openUserSheet(user, quote, stats);
                 row.innerHTML = `
                     <div class="rank-badge ${badgeClass}">${icon}</div>
                     <div class="row-content">
                         <div class="row-name">${user.name} <span class="inline-badges">${badgeIconsHtml}</span></div>
-                        <div class="row-quote">${dynamicQuote} <strong style="color: #636366; font-size: 11px;">(Tpl: ${user.totalCount})</strong></div>
+                        <div class="row-quote">${quote} <strong style="color: #636366; font-size: 11px;">(Tpl: ${user.totalCount})</strong></div>
                     </div>
-                    <div class="row-stats"><div class="row-score">${count}</div><div class="row-cost" style="color: ${costColor}">${costStr}</div></div>
-                    <div class="admin-tools">
-                        <button class="tool-btn tool-add" onclick="adminAddMultiple('${user.name}', event)">+ Ekle</button>
-                        <button class="tool-btn tool-sub" onclick="adminSub('${user.name}', event)">-1</button>
-                        <button class="tool-btn tool-zero" onclick="adminZero('${user.name}', event)">0</button>
-                        <button class="tool-btn tool-del" onclick="adminDel('${user.name}', event)">Sil</button>
-                    </div>`;
+                    <div class="row-stats"><div class="row-score">${count}</div><div class="row-cost">${costStr}</div></div>`;
                 board.appendChild(row);
             });
         }
 
         window.openUserSheet = function(user, quote, stats) {
             if (isEditMode) return; 
+            currentUserForSheet = user;
             
             document.getElementById('sheetName').innerText = user.name;
             document.getElementById('sheetQuote').innerText = quote;
@@ -472,6 +507,47 @@
             document.getElementById('sheetWeekCount').innerText = user.weekCount;
             document.getElementById('sheetTotalCost').innerText = (user.totalCount * COST_PER_ITEM) + " ₺";
 
+            // Fagerström ve Ömür Hesabı
+            const fArea = document.getElementById('fagerstromArea');
+            const lArea = document.getElementById('lifeStatsArea');
+            
+            if(!user.fagerstrom && user.name === myName) {
+                fArea.innerHTML = `<div class="test-banner" onclick="openFagerstrom()">Klinik Bağımlılık Testini Çöz!</div>`;
+                lArea.innerHTML = "";
+            } else if (user.fagerstrom) {
+                fArea.innerHTML = `<div style="padding:0 20px;"><div style="font-size:12px; color:var(--text-muted); text-transform:uppercase; font-weight:600;">Klinik Teşhis (Skor: ${user.fagerstrom.score})</div><div style="font-size:14px; color:#fff; margin-top:4px; font-style:italic;">"${user.fagerstrom.resultText}"</div></div>`;
+                
+                // Ömür Hesabı (Bugünkü tüketim vs Taban)
+                const diff = user.fagerstrom.baseline - user.todayCount;
+                if(diff > 0) {
+                    const savedMins = diff * MINS_LOST_PER_CIG;
+                    const h = Math.floor(savedMins/60); const m = savedMins%60;
+                    lArea.innerHTML = `
+                        <div class="life-card">
+                            <div class="life-icon">⏳</div>
+                            <div class="life-text">
+                                <h4>Ömrün Uzadı!</h4>
+                                <p>Normal tüketimine göre az içtiğin için bugün beklenen ömrüne <strong>${h > 0 ? h+' saat ' : ''}${m} dakika</strong> geri eklendi.</p>
+                            </div>
+                        </div>`;
+                } else if (diff < 0) {
+                    const lostMins = Math.abs(diff) * MINS_LOST_PER_CIG;
+                    lArea.innerHTML = `
+                        <div class="life-card negative">
+                            <div class="life-icon">⚰️</div>
+                            <div class="life-text">
+                                <h4>Mezara Erken Bilet</h4>
+                                <p>Limitini aştığın için beklenen ömründen fazladan <strong>${lostMins} dakika</strong> daha silindi.</p>
+                            </div>
+                        </div>`;
+                } else {
+                    lArea.innerHTML = `<div class="life-card" style="background:rgba(255,255,255,0.05); border-color:#333;"><div class="life-icon">⚖️</div><div class="life-text"><h4>Standart Çürüme</h4><p>Tam ortalamanda gidiyorsun. Beklenen standart ölüm tarihine sadıksın.</p></div></div>`;
+                }
+            } else {
+                fArea.innerHTML = ""; lArea.innerHTML = "";
+            }
+
+            // Rozetler
             const badgeContainer = document.getElementById('sheetBadges');
             const badgeTitle = document.getElementById('badgeTitle');
             badgeContainer.innerHTML = '';
@@ -479,51 +555,22 @@
                 badgeTitle.style.display = 'block';
                 user.earnedBadges.forEach(b => {
                     const badge = BADGES[b];
-                    badgeContainer.innerHTML += `
-                        <div class="badge-item">
-                            <div class="badge-icon">${badge.icon}</div>
-                            <div class="badge-info">
-                                <div class="badge-title">${badge.title}</div>
-                                <div class="badge-desc">${badge.desc}</div>
-                            </div>
-                        </div>`;
+                    badgeContainer.innerHTML += `<div class="badge-item"><div class="badge-icon">${badge.icon}</div><div class="badge-info"><div class="badge-title">${badge.title}</div><div class="badge-desc">${badge.desc}</div></div></div>`;
                 });
-            } else {
-                badgeTitle.style.display = 'none';
-            }
+            } else badgeTitle.style.display = 'none';
 
+            // Gelişmiş İstatistikler
             const advContainer = document.getElementById('advancedStats');
-            if (!stats) {
-                advContainer.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); font-size: 13px;">Gelişmiş analiz için henüz yeterli veri yok.</div>';
-            } else {
+            if (!stats) advContainer.innerHTML = '<div style="grid-column: 1/-1; text-align:center; color:var(--text-muted); font-size:13px;">Yeterli veri yok.</div>';
+            else {
                 let hourTimeStr = "Veri yok";
-                if(stats.maxHourTime) {
-                    const d = new Date(stats.maxHourTime);
-                    hourTimeStr = `${d.getDate()} ${d.toLocaleString('tr-TR', {month:'short'})} - ${d.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'})}`;
-                }
+                if(stats.maxHourTime) { const d = new Date(stats.maxHourTime); hourTimeStr = `${d.getDate()} ${d.toLocaleString('tr-TR', {month:'short'})} - ${d.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'})}`; }
                 advContainer.innerHTML = `
                     <div class="adv-card"><div class="adv-icon">🔥</div><div class="adv-title">Kriz Anı (1 Saatte)</div><div class="adv-value">${stats.maxHourCount} Adet</div><div class="adv-sub">${hourTimeStr}</div></div>
                     <div class="adv-card"><div class="adv-icon">🦇</div><div class="adv-title">Gece Mesaisi</div><div class="adv-value">${stats.maxNightCount} Adet</div><div class="adv-sub">${stats.maxNightDay} Gecesi</div></div>
-                    <div class="adv-card"><div class="adv-icon">🚂</div><div class="adv-title">Zincirleme</div><div class="adv-value">${stats.chainCount} Kez</div><div class="adv-sub">15 dk'dan kısa arayla</div></div>
+                    <div class="adv-card"><div class="adv-icon">🚂</div><div class="adv-title">Zincirleme</div><div class="adv-value">${stats.chainCount} Kez</div><div class="adv-sub">15 dk'dan kısa</div></div>
                     <div class="adv-card"><div class="adv-icon">🌱</div><div class="adv-title">İrade Günü</div><div class="adv-value">${stats.minCount} Adet</div><div class="adv-sub">${stats.minDay}</div></div>
                 `;
-            }
-
-            const logList = document.getElementById('logList');
-            logList.innerHTML = '';
-            if (user.todayLogs.length === 0) {
-                logList.innerHTML = '<div style="color: var(--text-muted); font-size: 13px;">Bugün tertemiz, log kaydı yok.</div>';
-            } else {
-                user.todayLogs.forEach((timestamp, i) => {
-                    const date = new Date(timestamp);
-                    const timeStr = date.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
-                    let gapStr = '';
-                    if (i < user.todayLogs.length - 1) {
-                        const diffMins = Math.floor((timestamp - user.todayLogs[i + 1]) / 60000);
-                        gapStr = diffMins < 60 ? `${diffMins} dk arayla` : `${Math.floor(diffMins/60)} sa ${diffMins%60} dk arayla`;
-                    } else { gapStr = "Günün ilki"; }
-                    logList.innerHTML += `<div class="log-item"><span class="log-time">🚬 ${timeStr}</span><span class="log-gap">${gapStr}</span></div>`;
-                });
             }
 
             document.getElementById('sheetOverlay').classList.add('active');
@@ -533,6 +580,7 @@
         window.closeSheet = function() {
             document.getElementById('sheetOverlay').classList.remove('active');
             document.getElementById('userSheet').classList.remove('active');
+            currentUserForSheet = null;
         };
     </script>
 </body>
