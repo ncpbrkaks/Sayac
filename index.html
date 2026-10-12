@@ -6,95 +6,54 @@
     <title>Sayaç</title>
     <style>
         :root {
-            --bg-color: #000000;
-            --card-bg: #1C1C1E;
-            --text-main: #FFFFFF;
-            --text-muted: rgba(235, 235, 245, 0.6);
-            --ios-green: #32D74B;
-            --ios-red: #FF453A;
-            --ios-blue: #0A84FF;
-            --separator: rgba(84, 84, 88, 0.65);
+            --bg-color: #000000; --card-bg: #1C1C1E; --text-main: #FFFFFF;
+            --text-muted: rgba(235, 235, 245, 0.6); --ios-green: #32D74B;
+            --ios-red: #FF453A; --ios-blue: #0A84FF; --separator: rgba(84, 84, 88, 0.65);
         }
-
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+            background-color: var(--bg-color); color: var(--text-main); margin: 0;
             padding: env(safe-area-inset-top) 20px env(safe-area-inset-bottom) 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
+            display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow-x: hidden;
         }
 
-        .header {
-            width: 100%; max-width: 400px;
-            display: flex; justify-content: space-between; align-items: flex-end;
-            margin-top: 20px; padding-bottom: 15px;
-        }
+        .header { width: 100%; max-width: 400px; display: flex; justify-content: space-between; align-items: flex-end; margin-top: 10px; padding-bottom: 15px; }
         .header h1 { font-size: 34px; font-weight: 700; margin: 0; letter-spacing: 0.5px; }
         .header .date { font-size: 13px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
-        
-        .admin-edit-btn {
-            color: var(--ios-blue); font-size: 17px; background: none; border: none;
-            padding: 0; margin: 0 0 4px 0; cursor: pointer; display: none; font-weight: 400;
-        }
+        .admin-edit-btn { color: var(--ios-blue); font-size: 17px; background: none; border: none; padding: 0; margin: 0 0 4px 0; cursor: pointer; display: none; font-weight: 400; }
 
-        .btn-container {
-            margin: 30px 0 40px 0; display: flex; justify-content: center; position: relative;
-        }
+        .btn-container { margin: 20px 0 30px 0; display: flex; justify-content: center; }
         .btn-add {
-            background: linear-gradient(145deg, #2a2a2c, #1c1c1e);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 50%; width: 150px; height: 150px;
-            color: var(--ios-green); font-size: 56px; font-weight: 300;
-            box-shadow:  20px 20px 60px rgba(0,0,0,0.5), 
-                         -10px -10px 30px rgba(255,255,255,0.03),
-                         inset 0 0 0 rgba(0,0,0,0);
-            cursor: pointer; z-index: 10;
-            transition: all 0.15s cubic-bezier(0.2, 0, 0, 1);
-            display: flex; justify-content: center; align-items: center;
+            background: linear-gradient(145deg, #2a2a2c, #1c1c1e); border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 50%; width: 140px; height: 140px; color: var(--ios-green); font-size: 52px; font-weight: 300;
+            box-shadow: 20px 20px 60px rgba(0,0,0,0.5), -10px -10px 30px rgba(255,255,255,0.03);
+            cursor: pointer; transition: all 0.15s; display: flex; justify-content: center; align-items: center;
         }
-        .btn-add:active {
-            transform: scale(0.94);
-            box-shadow:  5px 5px 20px rgba(0,0,0,0.5), 
-                         -5px -5px 15px rgba(255,255,255,0.02),
-                         inset 15px 15px 30px rgba(0,0,0,0.8);
-            color: rgba(50, 215, 75, 0.5);
-        }
+        .btn-add:active { transform: scale(0.94); color: rgba(50, 215, 75, 0.5); }
 
-        .list-container {
-            width: 100%; max-width: 400px;
-            background: var(--card-bg); border-radius: 12px;
-            overflow: hidden; margin-bottom: 30px;
+        .segmented-control {
+            display: flex; background: rgba(118, 118, 128, 0.24); border-radius: 8px;
+            padding: 2px; width: 100%; max-width: 400px; margin-bottom: 20px;
         }
+        .seg-btn {
+            flex: 1; text-align: center; padding: 6px 0; font-size: 13px; font-weight: 600;
+            color: var(--text-main); border: none; background: transparent; border-radius: 6px;
+            cursor: pointer; transition: 0.2s;
+        }
+        .seg-btn.active { background: #636366; box-shadow: 0 3px 8px rgba(0,0,0,0.12); }
+
+        .list-container { width: 100%; max-width: 400px; background: var(--card-bg); border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
+        .list-row { display: flex; align-items: center; padding: 14px 16px; position: relative; transition: transform 0.3s; background: var(--card-bg); cursor: pointer; }
+        .list-row:not(:last-child)::after { content: ''; position: absolute; bottom: 0; left: 54px; right: 0; height: 0.5px; background: var(--separator); }
+        .list-row:active { background: #2C2C2E; }
         
-        .list-row {
-            display: flex; align-items: center; padding: 14px 16px;
-            position: relative; transition: transform 0.3s ease;
-            background: var(--card-bg);
-        }
-        .list-row:not(:last-child)::after {
-            content: ''; position: absolute; bottom: 0; left: 54px; right: 0;
-            height: 0.5px; background: var(--separator);
-        }
-
-        .rank-badge {
-            width: 30px; height: 30px; border-radius: 8px;
-            display: flex; justify-content: center; align-items: center;
-            font-size: 16px; margin-right: 14px; flex-shrink: 0;
-            background: #2C2C2E;
-        }
+        .rank-badge { width: 30px; height: 30px; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 16px; margin-right: 14px; background: #2C2C2E; flex-shrink: 0; }
         .rank-first .rank-badge { background: var(--ios-red); color: white; }
         .rank-last .rank-badge { background: var(--ios-green); color: white; }
 
         .row-content { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; padding-right: 10px; }
-        .row-name { font-size: 17px; font-weight: 500; letter-spacing: -0.2px; line-height: 1.3; }
+        .row-name { font-size: 17px; font-weight: 500; line-height: 1.3; }
         .row-quote { font-size: 13px; color: var(--text-muted); margin-top: 2px; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         
         .row-stats { display: flex; flex-direction: column; align-items: flex-end; min-width: 45px; }
@@ -102,44 +61,47 @@
         .row-cost { font-size: 12px; color: var(--ios-red); font-weight: 500; margin-top: 2px; }
         .rank-last .row-cost { color: var(--text-muted); }
 
-        .admin-tools {
-            position: absolute; right: -160px; height: 100%; top: 0;
-            display: flex; align-items: center; gap: 0; opacity: 0;
-            transition: all 0.3s ease; background: var(--card-bg);
-        }
-        .edit-mode .list-row { transform: translateX(-160px); }
+        /* Admin Düzenleme Modu Genişletildi */
+        .admin-tools { position: absolute; right: -215px; height: 100%; top: 0; display: flex; align-items: center; opacity: 0; transition: all 0.3s; background: var(--card-bg); }
+        .edit-mode .list-row { transform: translateX(-215px); }
         .edit-mode .admin-tools { opacity: 1; right: 0; }
-        
-        .tool-btn {
-            height: 100%; width: 53px; border: none; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; color: white; cursor: pointer; font-size: 12px; font-weight: 600; gap: 4px;
-        }
-        .tool-sub { background: #FF9F0A; }
-        .tool-zero { background: #8E8E93; }
-        .tool-del { background: var(--ios-red); }
+        .tool-btn { height: 100%; width: 53px; border: none; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; cursor: pointer; font-size: 12px; font-weight: 600; gap: 4px;}
+        .tool-add { background: var(--ios-blue); } .tool-sub { background: #FF9F0A; } .tool-zero { background: #8E8E93; } .tool-del { background: var(--ios-red); }
 
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            display: flex; justify-content: center; align-items: center; z-index: 1000;
+        /* Yeni Admin Kullanıcı Ekleme Butonu */
+        .admin-add-user {
+            display: none; width: 100%; max-width: 400px; padding: 14px;
+            background: rgba(10, 132, 255, 0.1); color: var(--ios-blue);
+            border: 1px dashed var(--ios-blue); border-radius: 12px;
+            text-align: center; font-size: 16px; font-weight: 600; cursor: pointer; margin-bottom: 30px;
         }
-        .modal-card {
-            background: #1C1C1E; border-radius: 14px; width: 270px; text-align: center; overflow: hidden;
-        }
+
+        .sheet-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 100; opacity: 0; pointer-events: none; transition: 0.3s; }
+        .sheet-overlay.active { opacity: 1; pointer-events: auto; }
+        .bottom-sheet { position: fixed; bottom: -100%; left: 0; width: 100%; background: #1C1C1E; border-radius: 20px 20px 0 0; z-index: 101; transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; flex-direction: column; max-height: 85vh; }
+        .bottom-sheet.active { bottom: 0; }
+        .sheet-handle { width: 40px; height: 5px; background: #555; border-radius: 3px; margin: 10px auto; }
+        .sheet-header { padding: 10px 20px 20px; text-align: center; border-bottom: 1px solid var(--separator); }
+        .sheet-header h2 { margin: 0; font-size: 22px; }
+        .sheet-header p { margin: 5px 0 0 0; font-size: 14px; color: var(--text-muted); }
+        
+        .stat-grid { display: flex; justify-content: space-between; padding: 20px; background: #000; }
+        .stat-box { flex: 1; text-align: center; }
+        .stat-value { font-size: 24px; font-weight: 700; color: var(--ios-red); margin-bottom: 4px; }
+        .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
+        
+        .log-container { flex-grow: 1; overflow-y: auto; padding: 0 20px 20px; }
+        .log-title { font-size: 15px; font-weight: 600; color: #fff; margin: 20px 0 10px; }
+        .log-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--separator); font-size: 14px; }
+        .log-time { color: var(--text-main); font-variant-numeric: tabular-nums; }
+        .log-gap { color: var(--text-muted); font-size: 12px; }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-card { background: #1C1C1E; border-radius: 14px; width: 270px; text-align: center; overflow: hidden; }
         .modal-card-content { padding: 20px; }
         .modal-card h2 { margin: 0 0 6px 0; font-size: 18px; font-weight: 600; }
-        .modal-card p { color: var(--text-muted); font-size: 13px; margin: 0 0 15px 0; line-height: 1.4; }
-        .modal-input {
-            width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.1);
-            color: #fff; padding: 10px; border-radius: 6px; font-size: 15px; outline: none; text-align: center;
-        }
-        .modal-input:focus { border-color: var(--ios-blue); }
-        .modal-btn {
-            width: 100%; background: transparent; color: var(--ios-blue); border: none; border-top: 0.5px solid rgba(84, 84, 88, 0.65);
-            padding: 14px; font-size: 17px; font-weight: 600; cursor: pointer;
-        }
-        .modal-btn:active { background: rgba(255,255,255,0.05); }
-
+        .modal-input { width: 100%; background: #000; border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 10px; border-radius: 6px; font-size: 15px; outline: none; text-align: center; margin-top: 15px; }
+        .modal-btn { width: 100%; background: transparent; color: var(--ios-blue); border: none; border-top: 0.5px solid rgba(84, 84, 88, 0.65); padding: 14px; font-size: 17px; font-weight: 600; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -147,7 +109,6 @@
         <div class="modal-card">
             <div class="modal-card-content">
                 <h2>Sayaca Katıl</h2>
-                <p>Grupta görüneceğin ismi yaz. (Sonra değiştiremezsin)</p>
                 <input type="text" id="nameInput" class="modal-input" placeholder="Adın nedir?" autocomplete="off" maxlength="15">
             </div>
             <button class="modal-btn" onclick="saveName()">Giriş Yap</button>
@@ -157,9 +118,14 @@
     <div class="header">
         <div>
             <div class="date" id="dateText">Pazartesi</div>
-            <h1>Günlük Tüketim</h1>
+            <h1>Tüketim Raporu</h1>
         </div>
         <button class="admin-edit-btn" id="editBtn" onclick="toggleEditMode()">Düzenle</button>
+    </div>
+
+    <div class="segmented-control">
+        <button class="seg-btn active" id="tabDaily" onclick="setTab('daily')">Günlük Bilanço</button>
+        <button class="seg-btn" id="tabWeekly" onclick="setTab('weekly')">Haftalık Utanç Tablosu</button>
     </div>
 
     <div class="btn-container">
@@ -170,9 +136,40 @@
         <div style="padding: 20px; text-align: center; color: var(--text-muted); font-size: 14px;">Veriler yükleniyor...</div>
     </div>
 
+    <!-- Admin Özel Kullanıcı Ekleme Butonu -->
+    <button class="admin-add-user" id="adminAddUserBtn" onclick="adminCreateUser()">+ Yeni Kullanıcı Ekle (Patron Özel)</button>
+
+    <!-- Kişisel Bilanço Sheet -->
+    <div class="sheet-overlay" id="sheetOverlay" onclick="closeSheet()"></div>
+    <div class="bottom-sheet" id="userSheet">
+        <div class="sheet-handle"></div>
+        <div class="sheet-header">
+            <h2 id="sheetName">İsim</h2>
+            <p id="sheetQuote">Söz</p>
+        </div>
+        <div class="stat-grid">
+            <div class="stat-box">
+                <div class="stat-value" id="sheetTodayCost">0 ₺</div>
+                <div class="stat-label">Bugünkü Zarar</div>
+            </div>
+            <div class="stat-box" style="border-left: 1px solid #333; border-right: 1px solid #333;">
+                <div class="stat-value" id="sheetWeekCount">0</div>
+                <div class="stat-label">Haftalık Adet</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="sheetWeekCost">0 ₺</div>
+                <div class="stat-label">Haftalık Zarar</div>
+            </div>
+        </div>
+        <div class="log-container">
+            <div class="log-title">Bugünkü Zaman Çizelgesi</div>
+            <div id="logList"></div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-        import { getDatabase, ref, onValue, runTransaction, set, get, remove } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
+        import { getDatabase, ref, onValue, push, set, get, remove, update } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyA2-rUtVFadlncw_TPBK53qiLMVKhYKa6k",
@@ -180,20 +177,24 @@
             databaseURL: "https://sayac-82f63-default-rtdb.europe-west1.firebasedatabase.app",
             projectId: "sayac-82f63"
         };
-
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const countersRef = ref(db, "counters");
 
         const COST_PER_ITEM = 4;
+        let currentTab = 'daily';
+        
         const days = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
         document.getElementById('dateText').innerText = days[new Date().getDay()];
 
         const urlParams = new URLSearchParams(window.location.search);
         const isAdmin = urlParams.get('admin') === 'patron';
         let isEditMode = false;
-
-        if (isAdmin) document.getElementById('editBtn').style.display = 'block';
+        
+        if (isAdmin) {
+            document.getElementById('editBtn').style.display = 'block';
+            document.getElementById('adminAddUserBtn').style.display = 'block';
+        }
 
         window.toggleEditMode = function() {
             isEditMode = !isEditMode;
@@ -201,215 +202,200 @@
             document.getElementById('leaderboard').classList.toggle('edit-mode');
         };
 
-        let myName = localStorage.getItem("sayac_ios_v4");
-        let usersData = {};
-
-        function sanitizeKey(name) { return name.replace(/[.#$[\]/]/g, "_"); }
-
-        if (myName) document.getElementById("loginModal").style.display = "none";
-
-        // TİER 0: SIFIR (Melekler, Yalan Söyleyenler, Temizler)
-        const q0 = [
-            "Ciğerleri Alp dağları gibi tertemiz.", "Büyük ihtimalle yalan söylüyor, gizli içici.", "Ortamda pasif içicilikten besleniyor.",
-            "Nefesi bebek pudrası kokuyor.", "Akciğer filmi çeksek tablo diye duvara asarız.", "Günde 3 litre su içip yoga yapan tiplerden.",
-            "Tıbbi bir mucize, alet cam gibi maşallah.", "Dudakları henüz ziftle tanışmadı.", "Ortamın en masum kanatsız meleği.",
-            "Sağlıklı yaşam gurusu. Yeşil çay fıçısı.", "Ya unuttu ya da yemin etti, sıfır çekiyor.", "Damarlarında kan yerine zemzem suyu akıyor.",
-            "İrade şövalyesi. Şeytanı bile reddetti.", "Nefes darlığı nedir lügatında yok.", "Oksijen israfı yapmadan nefes alıyor.",
-            "Melekler yanaklarından öpüyor.", "Henüz dudak tiryakiliğine bile bulaşmamış.", "Kansere kafa atan efsanevi varlık.",
-            "Birazdan bir tane yakıp seriyi bozar.", "Bugün iradesi çelikten yapılmış.", "Tüm gün sakız çiğnemekten çenesi koptu.",
-            "Bakteriler bile akciğerine girmeye utanıyor.", "Bebek ciğeri speclerine sahip.", "Cennetlik kontenjanından listeye girdi.",
-            "Bu temizlik fazla sürmez, eli pakete gider.", "Oksijeni hücrelerinde hissedebiliyor.", "Aromalı hava çekmeye bile karşı.",
-            "Sıfır kilometre motor gibi, tık demiyor.", "Spor salonunda aynayla bakışan tayfadan.", "Kardiyoda asla tıkanmaz, tazı gibi.",
-            "Mezara pamuk gibi girecek garanti.", "Kendine saygısı olan tek insan evladı.", "Nikotin bandı takıyordur kesin.",
-            "Şimdilik temiz ama akşamı bekleyin.", "Nefesiyle mum söndürebilen yegane kişi.", "Kül tablasına bakıp iğrenen aristokrat.",
-            "Deterjanla yıkanmış gibi parlıyor.", "Yaşlanmayı durdurmuş, Benjamin Button gibi.", "Parası cebinde kalıyor, akıllı adam.", "Saflığın ve masumiyetin vücut bulmuş hali."
-        ];
-
-        // TİER 1: DÜŞÜK 1-5 (Amatörler, Kahvaltıcılar, Pozcular)
-        const q1 = [
-            "Daha dumanı yutmayı bilmiyor, havaya üflüyor.", "Kahvaltı niyetine bir tane yakmış garibim.", "Dudağı yandı garibimin, çekmeyi beceremiyor.",
-            "Sadece kahve yanına eşlik etsin diye içen tatlı su tiryakisi.", "Günde 3 tane içip 'kanka ben bağımlıyım ya' diyen poser.",
-            "Dumanı içine çekerken gözleri yaşarıyor.", "Paketi bir ay gidiyor cimri herifin.", "Dudak tiryakisi, ciğere indirmiyor korkak.",
-            "Sırf ortamda dışlanmamak için elinde tutuyor.", "Dumanla halka yapmaya çalışırken tükürdü.", "Babası görse ensesine tokadı yapıştırır.",
-            "Akşamcı tayfa, gündüzleri temiz takılıyor.", "Fakirlikten otlanarak bu sayıya ulaştı.", "Daha nikotin zehirlenmesi nedir tatmamış.",
-            "Bir fırt çekip başı dönen amatör şirin.", "Paketi açarken elleri titremeyen tek kişi.", "Sadece stresli olunca yakan narin çiçek.",
-            "İçmese de olur ama şekil olsun istiyor.", "Tuvalette gizli gizli bir tane tellendirmiş.", "Yarı yolda söndürüp cebine koyan vizyonsuz.",
-            "Ağzında sadece hafif bir kül tadı var.", "Yeni yeni zehirlenmeye başlıyor, yolu uzun.", "Sigarayı emzik gibi kullanıyor.",
-            "Ateşi kimseden isteyemeyen çekingen içici.", "Bir dalı iki saatte bitiriyor sohbetten.", "Henüz dişleri sararmamış şanslı köylü.",
-            "Sadece yemekten sonra çalışan sindirim motoru.", "Dumanı burundan çıkarmayı yeni öğrenmiş.", "Hala sigara markası seçememiş ergen.",
-            "Çakmağı her seferinde çalınan masum.", "Bir dal sigarayla günü kurtarıyor.", "Nefesi hala karanfil ve sakız kokuyor.",
-            "İçerken öksürmemek için kendini kasıyor.", "Çakmak gazı bitene kadar anca yakabiliyor.", "Hala ciğerlerinin %90'ı oksijen dolu.",
-            "Paketin üstündeki resmi görüp tırsanlardan.", "Sadece alkol alınca aktifleşen pasif kart.", "Boğazı gıcık yapınca hemen çay içiyor.",
-            "Daha balgam atmayı bile bilmiyor.", "Bağımlılığın anaokulu seviyesinde."
-        ];
-
-        // TİER 2: ORTA 6-15 (Standart, Bağımlı, Maaş Düşmanı)
-        const q2 = [
-            "Maaşın yarısı tekele, kalanı hastaneye gidiyor.", "Sarı diş sendromu %60 tamamlandı.", "Nefes alırken inceden ıslık sesi geliyor.",
-            "Yürüyen bir küllüğe dönüşme yolunda.", "Parfüme yatırdığı parayla sigara kokusunu bastırıyor.", "Paketi yarıladı, ciğerleri SOS veriyor.",
-            "Sabah uyanır uyanmaz yastık altında paket arıyor.", "Merdiven çıkarken 3. katta tıkanan dede modu.", "Boğazı asfalt dökülmüş yola benziyor.",
-            "Ağız kokusuyla sinekleri bayıltabilir.", "Her çay bardağı gördüğünde eli titriyor.", "Nefesiyle çakmaksız ateş yakabilir.",
-            "Diş hekiminin en sevdiği altın madeni.", "Balgamı yavaştan kahverengiye dönmeye başladı.", "Sohbet aralarında sürekli ateşe uzanıyor.",
-            "Sigara molası vermek için mesaiye giden işçi.", "İki lafın başı pakete dokunma ihtiyacı hissediyor.", "Oksijen seviyesi İstanbul trafiği kadar tıkalı.",
-            "Bıyıkları sararmış, estetik faciası loading.", "Nefes darlığını 'kondisyonum düştü' diye yutturuyor.", "Elleri sigara tutmaktan pençe şeklini almış.",
-            "Gece uykusunda bile duman üflüyor gibi.", "Günde yarım paket, ömürden yarım sene.", "Ciğerler 'bırak artık peşimi' diye bağırıyor.",
-            "Ağzının içi 1990'lar kahvehanesi gibi kokuyor.", "Her yemeğin üstüne cila yapmadan duramaz.", "Tütün baronlarının favori sponsoru.",
-            "Damar tıkanıklığı kargo bekler gibi yola çıktı.", "Diş macununa verdiği para artık boşa gidiyor.", "Bir oturuşta 3 tane yakıp dertlenen melankolik.",
-            "Koşmayı bırak, hızlı yürürken bile öksürüyor.", "Sigara içmeyenlerin yanında zehir saçan varlık.", "Bırakacağım yalanlarına kendi bile inanmıyor.",
-            "Stresini ciğerlerini çürüterek çözdüğünü sanıyor.", "Dumanı midesine kadar indirip asit yapıyor.", "Paketin jelatinini soymak en büyük hobisi.",
-            "Üstü başı ağır bir nikotin tabakası kaplı.", "Gecenin köründe açık tekel arayan çaresiz.", "Arabasının içi morgdan hallice kokuyor.",
-            "Bırakmayı denediği her saniye 2 katı geri dönüyor."
-        ];
-
-        // TİER 3: YÜKSEK 16-25 (Baca, Ölümcül, Cinsel/Fiziksel Çöküş)
-        const q3 = [
-            "Balgamıyla dubleks ev duvarı örebilir.", "Yürüyen Çernobil, radyasyon saçıyor.", "Sabah ereksiyonu yerine şiddetli öksürük krizine uyanıyor.",
-            "Cinsel hayatı 3. fırt'tan sonra nefes darlığı yüzünden bitti.", "Ciğerleri ziftle kaplanmış, asfalt döksek yeridir.",
-            "Damarları o kadar tıkalı ki kan geri vites yapıyor.", "Nefes almıyor, bildiğin oksijene hakaret ediyor.", "Koah teşhisi için doktor randevusu yolda.",
-            "Morgda VIP sırasını şimdiden ayırttı.", "Bir paket yetmez, ikinciye saldırdı ahtapot gibi.", "Ağzıyla egzoz muayenesinden geçemez, ağır kusurlu.",
-            "Sevişirken tıkanıp mola isteyen akciğer fakiri.", "Dişleri Mısır piramitlerinden daha sarı.", "Parmak uçları nikotinden fosil rengini almış.",
-            "Kan dolaşımı durmak üzere, organlar isyanda.", "Geceleri hırlaması yüzünden yanındaki uyuyamıyor.", "Kanserojen madde üretimi ve dağıtımı ondan sorulur.",
-            "Testislerine giden kan akışı sigaradan iflas etti.", "Nefesiyle bir canlıyı saniyeler içinde zehirleyebilir.", "Eşi dostu yanında maskeyle geziyor.",
-            "Her öksürdüğünde ağzından küçük bir kömür parçası düşüyor.", "Akciğerleri adeta bir poşet çay kıvamına geldi.", "Dudakları morarmış, oksijensizlikten vampir gibi.",
-            "İç organları 'lütfen bizi öldür artık' diye yalvarıyor.", "İktidarsızlık kapısını çaldı, içeride çay içiyor.", "Çöp konteyneri bile onun ağzından daha ferah kokar.",
-            "Kardiyologların ibret tablosu olarak duvara astığı adam.", "Biyolojik atık statüsüne girmesine 2 paket kaldı.", "Damarlarında kan değil katran dolaşıyor.",
-            "Spermleri öksürerek ilerliyor, üreme ihtimali sıfır.", "Kül tablasını yalayarak yıkanmış gibi bir kokusu var.", "Solunum cihazı siparişini şimdiden versin.",
-            "Merdiven çıkmayı Everest'e tırmanmak sanıyor.", "Her yakışında ömründen bir gün delete oluyor.", "Maaşını direkt Philip Morris hesabına havale ediyor.",
-            "Ateş bulamayınca çakmak taşını kemirecek psikopatta.", "Oksijen çadırında bile sigara yakmaya çalışır.", "Ten rengi artık grimsi bir kül tonunu aldı.",
-            "Konuşurken ağzından bildiğin kurum dökülüyor.", "Doktorlar ciğerlerine bakıp stajyerlere 'Böyle yapmayın' diyor."
-        ];
-
-        // TİER 4: EXTREME 26+ (Terminal, Vahşi, Kara Mizah, Azrail'in Kankası)
-        const q4 = [
-            "Otopsi raporu şimdiden belli: %90 Tütün, %10 Et.", "Azrail ile kanka olmuş, akşamları okeye dönüyorlar.", "Spermleri radyoaktif sıvıya dönüştü, kısır döngü.",
-            "Akciğerlerini çamaşır suyuyla yıkasan anca rengi açılır.", "Yakında burun deliklerinden duman değil lav çıkacak.", "Cinsel organı kan gitmediği için süs eşyasına dönüştü.",
-            "Nefes verdiğinde ozon tabakasında yeni bir delik açılıyor.", "Morg görevlileri bile kokusundan kaçacak.", "Günde 2 paket! Küllükte doğup büyümüş bir mutant.",
-            "Cesedi toprağa karışınca bitkiler mutasyona uğrayacak.", "İçinde o kadar katran var ki, yollara asfalt niyetine dökülür.", "Damarları tütün yaprağına dönüşmüş biyolojik ucube.",
-            "Hastanenin onkoloji servisine kombine bilet almış.", "Ciğerleri artık bağımsızlığını ilan edip vücuttan çıkmak istiyor.", "Balgamı asit gibi yere damladığında betonu eritiyor.",
-            "Eşi sigara kokusu yüzünden boşanma davasını açtı açacak.", "Aldığı her nefes, cenaze marşının bir notası gibi.", "Oksijen tüpüyle sigara içmeyi deneyecek kadar şuursuz.",
-            "Vücudundaki tüm kan pıhtılaşmış, yürüyen bir ceset.", "Ağzı lağım çukurundan hallice, konuşurken asit saçıyor.", "Her fırtında Azrail'in cebine bahşiş sıkıştırıyor.",
-            "Organ bağışı yapsa, takılan hasta anında kriz geçirir.", "Radyoaktif atık tesislerinde denek olarak kullanılmalı.", "Nefesini tutsa kendi içindeki zehirden saniyede bayılır.",
-            "Kalp krizi loading ekranı %99'da takılı kalmış durumda.", "Yatakta performansı 10 saniye sürüyor, sonra astım krizi.", "Ciğerlerine pipet soksan saf katran içersin.",
-            "Öldüğünde yakılmak isterse 3 hafta boyunca sönmez.", "Bir insan evladı kendi kendini anca bu kadar yok edebilir.", "Sigara fabrikasına ortak olsa daha karlı çıkardı.",
-            "Sesi artık insan gibi değil, şeytani bir hırıltı çıkarıyor.", "Burun kılları sıcaktan ve dumandan yanıp kül olmuş.", "Zehirli gaz odası görse 'Buranın havası temizmiş' der.",
-            "Cildi parşömen kağıdına dönmüş, dokunsan ufalanacak.", "Öksürdüğünde oluşan sismik dalgalar fay hatlarını tetikliyor.", "Gelecek nesillere DNA yerine saf zehir aktaracak.",
-            "Hücreleri 'biz bu bedende daha fazla yaşayamayız' deyip intihar ediyor.", "Kan tahlili versin, tüpün içindeki kan siyah çıkar.", "Yakında nefes darlığından gözleri pörtleyip dışarı fırlayacak.",
-            "İnsanlık tarihinin gördüğü en şuursuz karbonmonoksit makinesi."
-        ];
-
-        window.saveName = async function() {
-            const input = document.getElementById("nameInput").value.trim();
-            if (input.length > 0) {
-                myName = input;
-                localStorage.setItem("sayac_ios_v4", myName);
-                document.getElementById("loginModal").style.display = "none";
-                const userRef = ref(db, "counters/" + sanitizeKey(myName));
-                const snapshot = await get(userRef);
-                if (!snapshot.exists()) {
-                    await set(userRef, { name: myName, count: 0, updated_at: Date.now() });
-                }
-            }
+        window.setTab = function(tab) {
+            currentTab = tab;
+            document.getElementById('tabDaily').classList.toggle('active', tab === 'daily');
+            document.getElementById('tabWeekly').classList.toggle('active', tab === 'weekly');
+            renderLeaderboard();
         };
 
+        let myName = localStorage.getItem("sayac_ios_v5");
+        let usersData = {};
+        function sanitizeKey(name) { return name.replace(/[.#$[\]/]/g, "_"); }
+        if (myName) document.getElementById("loginModal").style.display = "none";
+
+        const q0 = ["Ciğerleri Alp dağları gibi tertemiz.", "Büyük ihtimalle yalan söylüyor.", "Ortamda pasif içicilikten besleniyor.", "Sağlıklı yaşam gurusu.", "Ya unuttu ya da yemin etti, sıfır çekiyor."];
+        const q1 = ["Kahvaltı niyetine bir tane yakmış garibim.", "Sadece kahve yanına eşlik etsin diye içiyor.", "Tuvalette gizli gizli bir tane tellendirmiş.", "Ağzında sadece hafif bir kül tadı var."];
+        const q2 = ["Maaşın yarısı tekele gidiyor.", "Sarı diş sendromu %60 tamamlandı.", "Oksijen seviyesi İstanbul trafiği kadar tıkalı.", "Günde yarım paket, ömürden yarım sene."];
+        const q3 = ["Balgamıyla dubleks ev duvarı örebilir.", "Yürüyen Çernobil, radyasyon saçıyor.", "Morgda VIP sırasını şimdiden ayırttı.", "Bir paket yetmez, ikinciye saldırdı."];
+        const q4 = ["Otopsi raporu: %90 Tütün, %10 Et.", "Azrail ile kanka olmuş, okeye dönüyorlar.", "Akciğerlerini çamaşır suyuyla yıkasan açılmaz.", "Günde 2 paket! Küllükte doğmuş bir mutant."];
+
         function getRandomQuote(count) {
-            let pool;
-            if (count === 0) pool = q0;
-            else if (count <= 5) pool = q1;
-            else if (count <= 15) pool = q2;
-            else if (count <= 25) pool = q3;
-            else pool = q4;
+            let pool = count === 0 ? q0 : count <= 5 ? q1 : count <= 15 ? q2 : count <= 25 ? q3 : q4;
             return pool[Math.floor(Math.random() * pool.length)];
         }
+
+        function getStartOfToday() { const d = new Date(); d.setHours(0,0,0,0); return d.getTime(); }
+        function getStartOfWeek() { 
+            const d = new Date(); d.setHours(0,0,0,0);
+            const day = d.getDay(); const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+            return new Date(d.setDate(diff)).getTime(); 
+        }
+
+        window.saveName = function() {
+            const input = document.getElementById("nameInput").value.trim();
+            if (input.length > 0) {
+                myName = input; localStorage.setItem("sayac_ios_v5", myName);
+                document.getElementById("loginModal").style.display = "none";
+                update(ref(db, "counters/" + sanitizeKey(myName)), { name: myName });
+            }
+        };
 
         window.addSmoke = function() {
             if (!myName) return;
             if (navigator.vibrate) navigator.vibrate([20]);
-            
-            const userRef = ref(db, "counters/" + sanitizeKey(myName));
-            runTransaction(userRef, (currentData) => {
-                if (currentData) {
-                    currentData.count = (currentData.count || 0) + 1;
-                    currentData.updated_at = Date.now();
-                    return currentData;
-                } else {
-                    return { name: myName, count: 1, updated_at: Date.now() };
-                }
-            });
+            update(ref(db, "counters/" + sanitizeKey(myName)), { name: myName });
+            const logRef = push(ref(db, "counters/" + sanitizeKey(myName) + "/logs"));
+            set(logRef, Date.now());
         };
 
-        window.adminSub = function(targetName) {
-            const userRef = ref(db, "counters/" + sanitizeKey(targetName));
-            runTransaction(userRef, (c) => { if (c && c.count > 0) { c.count -= 1; } return c; });
+        // --- YENİ ADMİN KONTROLLERİ (Eski Veri Taşıma) ---
+        window.adminCreateUser = async function() {
+            const newName = prompt("Eklenecek kullanıcının adı nedir?");
+            if (newName && newName.trim().length > 0) {
+                const cleanName = newName.trim();
+                const userRef = ref(db, "counters/" + sanitizeKey(cleanName));
+                const snapshot = await get(userRef);
+                if (!snapshot.exists()) {
+                    await update(userRef, { name: cleanName });
+                } else {
+                    alert("Bu isimde bir kullanıcı zaten var!");
+                }
+            }
+        };
+
+        window.adminAddMultiple = function(targetName, event) {
+            event.stopPropagation();
+            const amount = parseInt(prompt(`${targetName} için eski veritabanından kaç adet sayı aktarılacak?`, "1"));
+            if (!isNaN(amount) && amount > 0) {
+                update(ref(db, "counters/" + sanitizeKey(targetName)), { name: targetName });
+                for(let i=0; i<amount; i++) {
+                    const logRef = push(ref(db, "counters/" + sanitizeKey(targetName) + "/logs"));
+                    // Logların hepsinin aynı saniyede görünmemesi için her kaydı 1 dakika geriye atarak kaydediyoruz
+                    set(logRef, Date.now() - (i * 60000)); 
+                }
+                if (navigator.vibrate) navigator.vibrate([20]);
+            }
+        };
+
+        window.adminSub = function(targetName, event) {
+            event.stopPropagation();
+            const user = usersData[sanitizeKey(targetName)];
+            if (user && user.logs) {
+                const logs = Object.entries(user.logs).sort((a,b) => b[1] - a[1]); 
+                if (logs.length > 0) remove(ref(db, `counters/${sanitizeKey(targetName)}/logs/${logs[0][0]}`));
+            }
             if (navigator.vibrate) navigator.vibrate([20]);
         };
-
-        window.adminZero = function(targetName) {
-            if(confirm(targetName + " skoru sıfırlansın mı?")) {
-                const userRef = ref(db, "counters/" + sanitizeKey(targetName));
-                runTransaction(userRef, (c) => { if (c) { c.count = 0; } return c; });
+        window.adminZero = function(targetName, event) {
+            event.stopPropagation();
+            if(confirm("Kişinin BUGÜNKÜ tüm kayıtları silinsin mi?")) {
+                const startOfToday = getStartOfToday();
+                const user = usersData[sanitizeKey(targetName)];
+                if (user && user.logs) {
+                    Object.entries(user.logs).forEach(([logId, timestamp]) => {
+                        if (timestamp >= startOfToday) remove(ref(db, `counters/${sanitizeKey(targetName)}/logs/${logId}`));
+                    });
+                }
             }
         };
-
-        window.adminDel = function(targetName) {
-            if(confirm(targetName + " tamamen SİLİNECEK. Emin misin?")) { 
-                remove(ref(db, "counters/" + sanitizeKey(targetName))); 
-            }
+        window.adminDel = function(targetName, event) {
+            event.stopPropagation();
+            if(confirm("Kişiyi tamamen SİL. Emin misin?")) remove(ref(db, "counters/" + sanitizeKey(targetName))); 
         };
 
-        onValue(countersRef, (snapshot) => {
-            usersData = snapshot.val() || {};
-            renderLeaderboard();
-        });
+        onValue(countersRef, (snapshot) => { usersData = snapshot.val() || {}; renderLeaderboard(); });
+
+        function processUserData(user) {
+            const logsArray = user.logs ? Object.values(user.logs) : [];
+            const startOfToday = getStartOfToday();
+            const startOfWeek = getStartOfWeek();
+            
+            const todayLogs = logsArray.filter(t => t >= startOfToday).sort((a,b) => b - a);
+            const weekLogs = logsArray.filter(t => t >= startOfWeek);
+            
+            return {
+                name: user.name,
+                todayCount: todayLogs.length,
+                weekCount: weekLogs.length,
+                todayLogs: todayLogs
+            };
+        }
 
         function renderLeaderboard() {
             const board = document.getElementById("leaderboard");
-            const userList = Object.values(usersData).filter(u => u && u.name);
+            const processedUsers = Object.values(usersData).filter(u => u && u.name).map(processUserData);
 
-            if (userList.length === 0) {
-                board.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted); font-size: 14px;">Kimse eklenmemiş.</div>';
-                return;
-            }
+            if (processedUsers.length === 0) { board.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted);">Kimse yok.</div>'; return; }
 
-            userList.sort((a, b) => (b.count || 0) - (a.count || 0));
-            
+            processedUsers.sort((a, b) => currentTab === 'daily' ? b.todayCount - a.todayCount : b.weekCount - a.weekCount);
             board.innerHTML = "";
 
-            userList.forEach((user, index) => {
-                const count = user.count || 0;
-                let badgeClass = "rank-mid";
-                let icon = `<span style="font-size:12px; font-weight:700;">${index+1}</span>`;
-                let costColor = "var(--text-muted)";
+            processedUsers.forEach((user, index) => {
+                const count = currentTab === 'daily' ? user.todayCount : user.weekCount;
+                let badgeClass = "rank-mid"; let icon = `<span style="font-size:12px; font-weight:700;">${index+1}</span>`; let costColor = "var(--text-muted)";
                 
-                if (index === 0 && count > 0 && userList.length > 1) {
-                    badgeClass = "rank-first"; icon = "💀"; costColor = "var(--ios-red)";
-                } else if (index === userList.length - 1 && userList.length > 1) {
-                    badgeClass = "rank-last"; icon = "🌿"; costColor = "var(--text-muted)";
-                }
+                if (index === 0 && count > 0 && processedUsers.length > 1) { badgeClass = "rank-first"; icon = "💀"; costColor = "var(--ios-red)"; } 
+                else if (index === processedUsers.length - 1 && processedUsers.length > 1) { badgeClass = "rank-last"; icon = "🌿"; costColor = "var(--text-muted)"; }
 
-                const dynamicQuote = getRandomQuote(count);
+                const dynamicQuote = getRandomQuote(user.todayCount);
                 const costStr = count > 0 ? `💸 ${count * COST_PER_ITEM} ₺` : "Tertemiz";
 
-                const row = document.createElement("div");
-                row.className = "list-row";
+                const row = document.createElement("div"); row.className = "list-row";
+                row.onclick = () => openUserSheet(user, dynamicQuote);
                 row.innerHTML = `
                     <div class="rank-badge ${badgeClass}">${icon}</div>
-                    <div class="row-content">
-                        <div class="row-name">${user.name}</div>
-                        <div class="row-quote">${dynamicQuote}</div>
-                    </div>
-                    <div class="row-stats">
-                        <div class="row-score">${count}</div>
-                        <div class="row-cost" style="color: ${costColor}">${costStr}</div>
-                    </div>
+                    <div class="row-content"><div class="row-name">${user.name}</div><div class="row-quote">${dynamicQuote}</div></div>
+                    <div class="row-stats"><div class="row-score">${count}</div><div class="row-cost" style="color: ${costColor}">${costStr}</div></div>
                     <div class="admin-tools">
-                        <button class="tool-btn tool-sub" onclick="adminSub('${user.name}')"><span>-1</span></button>
-                        <button class="tool-btn tool-zero" onclick="adminZero('${user.name}')"><span>Sıfırla</span></button>
-                        <button class="tool-btn tool-del" onclick="adminDel('${user.name}')"><span>Sil</span></button>
-                    </div>
-                `;
+                        <button class="tool-btn tool-add" onclick="adminAddMultiple('${user.name}', event)"><span>+Sayı</span></button>
+                        <button class="tool-btn tool-sub" onclick="adminSub('${user.name}', event)"><span>-1</span></button>
+                        <button class="tool-btn tool-zero" onclick="adminZero('${user.name}', event)"><span>Sıfır</span></button>
+                        <button class="tool-btn tool-del" onclick="adminDel('${user.name}', event)"><span>Sil</span></button>
+                    </div>`;
                 board.appendChild(row);
             });
         }
+
+        window.openUserSheet = function(user, quote) {
+            if (isEditMode) return; 
+            
+            document.getElementById('sheetName').innerText = user.name;
+            document.getElementById('sheetQuote').innerText = quote;
+            document.getElementById('sheetTodayCost').innerText = (user.todayCount * COST_PER_ITEM) + " ₺";
+            document.getElementById('sheetWeekCount').innerText = user.weekCount;
+            document.getElementById('sheetWeekCost').innerText = (user.weekCount * COST_PER_ITEM) + " ₺";
+
+            const logList = document.getElementById('logList');
+            logList.innerHTML = '';
+            
+            if (user.todayLogs.length === 0) {
+                logList.innerHTML = '<div style="color: var(--text-muted); font-size: 13px;">Bugün tertemiz, log kaydı yok.</div>';
+            } else {
+                user.todayLogs.forEach((timestamp, i) => {
+                    const date = new Date(timestamp);
+                    const timeStr = date.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+                    
+                    let gapStr = '';
+                    if (i < user.todayLogs.length - 1) {
+                        const prevTime = user.todayLogs[i + 1]; 
+                        const diffMins = Math.floor((timestamp - prevTime) / 60000);
+                        if (diffMins < 60) gapStr = `${diffMins} dk arayla`;
+                        else gapStr = `${Math.floor(diffMins/60)} sa ${diffMins%60} dk arayla`;
+                    } else { gapStr = "Günün ilki"; }
+
+                    logList.innerHTML += `<div class="log-item"><span class="log-time">🚬 ${timeStr}</span><span class="log-gap">${gapStr}</span></div>`;
+                });
+            }
+
+            document.getElementById('sheetOverlay').classList.add('active');
+            document.getElementById('userSheet').classList.add('active');
+        };
+
+        window.closeSheet = function() {
+            document.getElementById('sheetOverlay').classList.remove('active');
+            document.getElementById('userSheet').classList.remove('active');
+        };
     </script>
 </body>
 </html>
