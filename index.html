@@ -32,13 +32,7 @@
             display: flex; flex-direction: column; align-items: center; min-height: 100vh;
         }
 
-        /* Glassmorphism Classes */
-        .glass {
-            background: var(--bg-glass);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 0.5px solid rgba(255,255,255,0.1);
-        }
+        .glass { background: var(--bg-glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 0.5px solid rgba(255,255,255,0.1); }
 
         .header { width: 100%; max-width: 400px; display: flex; justify-content: space-between; align-items: flex-end; margin-top: 15px; padding-bottom: 20px; }
         .header h1 { font-size: 32px; font-weight: 800; margin: 0; letter-spacing: 0.5px; }
@@ -49,16 +43,17 @@
 
         .btn-container { margin: 10px 0 35px 0; display: flex; justify-content: center; position: relative; }
         .btn-add {
-            background: linear-gradient(135deg, #30D158 0%, #24993F 100%);
-            border: none; border-radius: 50%; width: 130px; height: 130px;
-            color: #fff; font-size: 56px; font-weight: 300;
-            box-shadow: 0 10px 30px rgba(48, 209, 88, 0.4), inset 0 2px 5px rgba(255,255,255,0.3);
-            cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: flex; justify-content: center; align-items: center; text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            background: linear-gradient(135deg, #30D158 0%, #24993F 100%); border: none; border-radius: 50%; width: 130px; height: 130px; color: #fff; font-size: 56px; font-weight: 300; box-shadow: 0 10px 30px rgba(48, 209, 88, 0.4), inset 0 2px 5px rgba(255,255,255,0.3); cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; justify-content: center; align-items: center; text-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
         .btn-add:active { transform: scale(0.9); box-shadow: 0 5px 15px rgba(48, 209, 88, 0.2); }
         .btn-ring { position: absolute; top: -10px; left: -10px; right: -10px; bottom: -10px; border-radius: 50%; border: 1px solid rgba(48, 209, 88, 0.3); animation: pulse 2s infinite; pointer-events: none; }
         @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.15); opacity: 0; } }
+
+        /* Yeni Bildirim (Toast) CSS */
+        #toast-container { position: fixed; top: 15px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; width: 90%; max-width: 400px; }
+        .toast { background: rgba(30, 30, 32, 0.90); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(255,69,58,0.4); border-left: 5px solid var(--ios-red); color: #fff; padding: 14px 18px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); font-size: 14px; font-weight: 500; line-height: 1.4; animation: slideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, fadeOut 0.4s ease-in forwards 4.6s; }
+        @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-20px); } }
 
         .segmented-control { display: flex; background: rgba(118, 118, 128, 0.24); border-radius: 10px; padding: 3px; width: 100%; max-width: 400px; margin-bottom: 20px; }
         .seg-btn { flex: 1; text-align: center; padding: 8px 0; font-size: 13px; font-weight: 600; color: var(--text-main); border: none; background: transparent; border-radius: 8px; cursor: pointer; transition: 0.2s; }
@@ -78,11 +73,16 @@
         .inline-badges { font-size: 14px; margin-left: 6px; letter-spacing: 2px; }
         .row-quote { font-size: 13px; color: var(--text-muted); margin-top: 3px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         
-        .row-stats { display: flex; flex-direction: column; align-items: flex-end; min-width: 55px; }
-        .row-score { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
-        .row-cost { font-size: 12px; color: var(--ios-red); font-weight: 600; margin-top: 2px; }
+        .row-stats { display: flex; flex-direction: column; align-items: flex-end; min-width: 60px; }
+        .row-score { font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1; }
+        .row-total { font-size: 11px; color: var(--text-muted); font-weight: 700; margin-top: 4px; letter-spacing: 0.5px; }
 
-        /* Unified Modals */
+        .admin-tools { position: absolute; right: -180px; height: 100%; top: 0; display: flex; align-items: center; opacity: 0; transition: all 0.3s; background: var(--card-bg); }
+        .edit-mode .list-row { transform: translateX(-180px); }
+        .edit-mode .admin-tools { opacity: 1; right: 0; }
+        .tool-btn { height: 100%; width: 45px; border: none; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; cursor: pointer; font-size: 11px; font-weight: 600; gap: 4px; padding: 0;}
+        .tool-add { background: var(--ios-blue); } .tool-sub { background: #FF9F0A; } .tool-zero { background: #8E8E93; } .tool-del { background: var(--ios-red); }
+
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
         .modal-card { background: rgba(30,30,32,0.85); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-lg); width: 92%; max-width: 400px; max-height: 85vh; overflow-y: auto; padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
@@ -90,14 +90,11 @@
         .form-group { margin-bottom: 18px; }
         .form-label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
         .form-select, .form-input { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 14px; border-radius: 12px; font-size: 15px; outline: none; transition: 0.2s; appearance: none;}
-        .form-select:focus, .form-input:focus { border-color: var(--ios-blue); box-shadow: 0 0 0 3px rgba(10,132,255,0.2); }
         
         .primary-btn { width: 100%; background: var(--ios-blue); color: white; border: none; padding: 15px; font-size: 16px; font-weight: 600; border-radius: 12px; cursor: pointer; margin-top: 15px; transition: 0.2s; }
         .primary-btn:active { transform: scale(0.98); opacity: 0.9; }
-        .danger-btn { background: rgba(255,69,58,0.15); color: var(--ios-red); border: 1px solid rgba(255,69,58,0.3); }
         .close-btn { width: 100%; background: transparent; color: var(--text-muted); border: none; padding: 15px; font-size: 16px; font-weight: 600; border-radius: 12px; cursor: pointer; margin-top: 5px; }
 
-        /* Profil / Alt Sayfa (Sheet) */
         .sheet-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 100; opacity: 0; pointer-events: none; transition: 0.3s; }
         .sheet-overlay.active { opacity: 1; pointer-events: auto; }
         .bottom-sheet { position: fixed; bottom: -100%; left: 0; width: 100%; background: rgba(28,28,30,0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 32px 32px 0 0; border-top: 1px solid rgba(255,255,255,0.1); z-index: 101; transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; flex-direction: column; max-height: 90vh; }
@@ -112,13 +109,10 @@
         .stat-box { flex: 1; text-align: center; }
         .stat-value { font-size: 26px; font-weight: 800; color: #fff; margin-bottom: 4px; }
         .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;}
-        
         .section-title { font-size: 17px; font-weight: 700; color: #fff; margin: 25px 20px 15px; display: flex; align-items: center; gap: 8px;}
 
-        /* Yeni İstatistik Kartları */
         .advanced-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 20px 20px; }
-        .adv-card { background: rgba(255,255,255,0.05); border-radius: var(--radius-md); padding: 16px; border: 1px solid rgba(255,255,255,0.05); transition: 0.2s; }
-        .adv-card:active { transform: scale(0.96); background: rgba(255,255,255,0.08); }
+        .adv-card { background: rgba(255,255,255,0.05); border-radius: var(--radius-md); padding: 16px; border: 1px solid rgba(255,255,255,0.05); }
         .adv-icon { font-size: 24px; margin-bottom: 10px; display: inline-block; padding: 8px; background: rgba(0,0,0,0.3); border-radius: 12px; }
         .adv-title { font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;}
         .adv-value { font-size: 20px; font-weight: 800; color: #fff; margin: 4px 0; }
@@ -137,67 +131,58 @@
         .life-text p { margin: 0; font-size: 13px; color: rgba(255,255,255,0.8); line-height: 1.4; }
 
         .test-banner { margin: 20px; padding: 16px; border-radius: var(--radius-md); background: linear-gradient(135deg, rgba(10,132,255,0.2), rgba(10,132,255,0.05)); border: 1px solid rgba(10,132,255,0.3); text-align: center; cursor: pointer; color: #fff; font-weight: 600; font-size: 15px; transition: 0.2s;}
-        .test-banner:active { transform: scale(0.98); }
-
+        
         .admin-data-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
         .action-btn { background: rgba(255,255,255,0.1); border:none; padding: 12px; border-radius: 10px; color: #fff; font-weight: 600; font-size:13px; cursor: pointer; transition: 0.2s; }
-        .action-btn:active { background: rgba(255,255,255,0.2); }
     </style>
 </head>
 <body>
-    <!-- İlk Giriş Modalı -->
+    
+    <!-- Anlık Bildirim (Toast) Konteyneri -->
+    <div id="toast-container"></div>
+
     <div id="loginModal" class="modal-overlay">
         <div class="modal-card glass" style="text-align: center;">
             <h2 style="margin-top:0; font-weight:800;">Sayaca Katıl</h2>
             <p style="font-size:13px; color:var(--text-muted);">Grupta görüneceğin ismi yaz. Bir daha değiştiremezsin.</p>
             <input type="text" id="nameInput" class="form-input" placeholder="Örn: Ahmet" autocomplete="off" maxlength="15" style="text-align:center; margin:15px 0;">
-            <button class="primary-btn" onclick="saveName()">Bölgeye Gir</button>
+            <button class="primary-btn" onclick="saveName()">İçeri Gir</button>
         </div>
     </div>
 
-    <!-- MODÜLER YÖNETİCİ PANELİ (Tanrı Modu) -->
+    <!-- YÖNETİCİ PANELİ -->
     <div id="adminPanelModal" class="modal-overlay">
         <div class="modal-card glass">
             <h2 style="margin:0 0 20px 0; font-weight:800; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:15px;">⚙️ Tanrı Modu</h2>
-            
             <button class="primary-btn" style="margin-bottom:20px; background:rgba(48,209,88,0.2); color:var(--ios-green);" onclick="adminCreateUser()">+ Yeni Kullanıcı Oluştur</button>
-
             <div class="form-group">
                 <label class="form-label">Kullanıcı İşlemleri</label>
                 <select id="adminUserSelect" class="form-select" onchange="loadAdminUserSettings()">
                     <option value="">İşlem yapılacak kişiyi seç...</option>
                 </select>
             </div>
-
-            <!-- Seçili Kullanıcıya Özel İşlemler Alanı -->
             <div id="adminUserOperations" style="display:none;">
-                
                 <label class="form-label">Hızlı Veri Yönetimi</label>
                 <div class="admin-data-actions">
-                    <button class="action-btn" onclick="adminAddManualLog()">+ Sayı Ekle (Tarihli)</button>
+                    <button class="action-btn" onclick="adminAddManualLog()">+ Sayı Ekle (Geçmişe)</button>
                     <button class="action-btn" onclick="adminRemoveLastLog()">- Son Kaydı Sil</button>
                     <button class="action-btn" onclick="adminClearToday()">Bugünü Sıfırla</button>
                     <button class="action-btn" style="color:var(--ios-red);" onclick="adminDeleteUser()">Kullanıcıyı Sil</button>
                 </div>
-
                 <div class="form-group">
                     <label class="form-label">İstatistik Referans Tarihi</label>
                     <p style="font-size:11px; color:var(--text-muted); margin:0 0 6px 0;">Bu tarihten önceki loglar Gelişmiş Analiz'e dahil edilmez.</p>
                     <input type="date" id="adminStatsDate" class="form-input">
                 </div>
-
                 <div class="form-group">
                     <label class="form-label">Rozet Referans Tarihi</label>
-                    <p style="font-size:11px; color:var(--text-muted); margin:0 0 6px 0;">Bu tarihten önceki loglar Otomatik Rozet hesaplamasında yok sayılır.</p>
+                    <p style="font-size:11px; color:var(--text-muted); margin:0 0 6px 0;">Bu tarihten önceki loglar Otomatik Rozet'te yok sayılır.</p>
                     <input type="date" id="adminBadgeDate" class="form-input">
                 </div>
-
                 <label class="form-label">Manuel Rozet Müdahalesi</label>
                 <div id="adminBadgesContainer" style="background:rgba(0,0,0,0.3); padding:10px; border-radius:12px; margin-bottom:15px;"></div>
-
                 <button class="primary-btn" onclick="saveAdminSettings()">Değişiklikleri Kaydet</button>
             </div>
-
             <button class="close-btn" onclick="document.getElementById('adminPanelModal').classList.remove('active')">Kapat</button>
         </div>
     </div>
@@ -207,7 +192,6 @@
         <div class="modal-card glass">
             <h2 style="margin-top:0;">Klinik Test</h2>
             <p style="font-size:13px; color:var(--text-muted); margin-bottom:20px;">Gerçekleri yüzüne vurmamız için dürüst cevap ver.</p>
-            
             <div class="form-group">
                 <label class="form-label">1. Uyandıktan ne kadar sonra ilk sigaranı içersin?</label>
                 <select id="f1" class="form-select">
@@ -234,7 +218,6 @@
                 <label class="form-label">4. Hasta ve yatarken bile içer misin?</label>
                 <select id="f4" class="form-select"><option value="1">Evet</option><option value="0">Hayır</option></select>
             </div>
-
             <button class="primary-btn" onclick="submitFagerstrom()">Teşhisi Gör</button>
             <button class="close-btn" onclick="document.getElementById('fagerstromModal').classList.remove('active')">Vazgeç</button>
         </div>
@@ -243,14 +226,9 @@
     <div class="header">
         <div>
             <div class="date" id="dateText">Pazartesi</div>
-            <h1>Tüketim Raporu</h1>
+            <h1>Günlük Tüketim</h1>
         </div>
         <button class="admin-btn" id="adminToggleBtn" onclick="document.getElementById('adminPanelModal').classList.add('active')">⚙️ Panel</button>
-    </div>
-
-    <div class="segmented-control">
-        <button class="seg-btn active" id="tabDaily" onclick="setTab('daily')">Günlük Bilanço</button>
-        <button class="seg-btn" id="tabWeekly" onclick="setTab('weekly')">Haftalık Utanç Tablosu</button>
     </div>
 
     <div class="btn-container">
@@ -303,11 +281,12 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const countersRef = ref(db, "counters");
+        const actionRef = ref(db, "latest_action"); // Anlık bildirim (Toast) için db referansı
 
         const COST_PER_ITEM = 6;
         const MINS_LOST_PER_CIG = 11;
-        let currentTab = 'daily';
         let currentUserForSheet = null;
+        const pageLoadTime = Date.now(); // Toast'ların eski kayıtlardan fırlamaması için
         
         const days = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
         document.getElementById('dateText').innerText = days[new Date().getDay()];
@@ -316,14 +295,7 @@
         const isAdmin = urlParams.get('admin') === 'patron';
         if (isAdmin) document.getElementById('adminToggleBtn').style.display = 'block';
 
-        window.setTab = function(tab) {
-            currentTab = tab;
-            document.getElementById('tabDaily').classList.toggle('active', tab === 'daily');
-            document.getElementById('tabWeekly').classList.toggle('active', tab === 'weekly');
-            renderLeaderboard();
-        };
-
-        let myName = localStorage.getItem("sayac_ios_v7");
+        let myName = localStorage.getItem("sayac_ios_v8");
         let usersData = {};
         function sanitizeKey(name) { return name.replace(/[.#$[\]/]/g, "_"); }
         if (myName) document.getElementById("loginModal").classList.remove('active');
@@ -357,20 +329,61 @@
         window.saveName = function() {
             const input = document.getElementById("nameInput").value.trim();
             if (input.length > 0) {
-                myName = input; localStorage.setItem("sayac_ios_v7", myName);
+                myName = input; localStorage.setItem("sayac_ios_v8", myName);
                 document.getElementById("loginModal").classList.remove('active');
                 update(ref(db, "counters/" + sanitizeKey(myName)), { name: myName });
             }
         };
 
+        // --- ANLIK BİLDİRİM (TOAST) TETİKLEYİCİSİ VE DİNLEYİCİSİ ---
         window.addSmoke = function() {
             if (!myName) return;
             if (navigator.vibrate) navigator.vibrate([20]);
             update(ref(db, "counters/" + sanitizeKey(myName)), { name: myName });
             push(ref(db, "counters/" + sanitizeKey(myName) + "/logs"), Date.now());
+            
+            // Toast bildirimi için Firebase'e anlık tetikleme gönderiyoruz
+            set(actionRef, { user: myName, time: Date.now() });
         };
 
-        // --- YENİ BİRLEŞTİRİLMİŞ ADMİN PANELİ ---
+        // Firebase'den anlık bildirimleri dinle (Tüm açık telefonlarda çalışır)
+        onValue(actionRef, (snap) => {
+            const data = snap.val();
+            if (data && data.time > pageLoadTime) { // Sadece sayfa açıldıktan sonraki tıklamaları yakala
+                showToast(data.user);
+            }
+        });
+
+        // Ekrana Düşen Kara Mizah Uyarılarını Üreten Fonksiyon
+        function showToast(name) {
+            const humorTemplates = [
+                `${name} aleti pet şişeye çeviriyor şu an.`,
+                `${name} sperm kalitesini az önce %40 düşürdü.`,
+                `${name} Azrail'in cebine bir bahşiş daha sıkıştırdı.`,
+                `${name} morgdan VIP sırasını garantiledi.`,
+                `Oksijen israfı: ${name} ciğerleri harladı.`,
+                `${name} yürüyecek mecali kalmayana kadar zehir soluyor.`,
+                `${name} sponsorluğunda kanser hücreleri bayram ediyor.`,
+                `Ambulanslar ${name} için motorları ısıtmaya başladı.`,
+                `Şu an ${name}'in kanındaki karbonmonoksit alarm veriyor.`,
+                `${name} maaşının bir kısmını daha tekele bağışladı.`,
+                `${name} akciğerlerine asfalttan bir katman daha attı.`,
+                `${name} nefes darlığı aboneliğini az önce yeniledi.`,
+                `${name} mezar yerini premium pakete yükseltti.`
+            ];
+            const msg = humorTemplates[Math.floor(Math.random() * humorTemplates.length)];
+            
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerText = `🚨 ${msg}`;
+            container.appendChild(toast);
+            
+            // 5 Saniye sonra silinmesi CSS'deki 4.6s fadeOut animasyonuna denk gelir, DOM'dan temizleriz
+            setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 5000);
+        }
+
+        // --- ADMİN PANELİ FONKSİYONLARI ---
         window.adminCreateUser = async function() {
             const newName = prompt("Eklenecek kullanıcının adı:");
             if (newName && newName.trim().length > 0) {
@@ -431,12 +444,10 @@
             update(ref(db, `counters/${userKey}/adminSettings`), payload).then(() => alert("Kullanıcı ayarları kaydedildi."));
         };
 
-        // Veri İşlemleri
         window.adminAddManualLog = function() {
             const userKey = document.getElementById('adminUserSelect').value;
             const amount = parseInt(prompt("Kaç adet sayı eklenecek?", "1"));
             if (amount > 0) {
-                // Sadece düne, her saat başı geriye dönük ekleyerek istatistiği bozmaz
                 const now = Date.now();
                 const interval = 60 * 60 * 1000; 
                 for(let i=0; i<amount; i++) push(ref(db, `counters/${userKey}/logs`), now - ((i+1) * interval));
@@ -481,7 +492,7 @@
             }
         };
 
-        // --- FAGERSTRÖM ---
+        // --- FAGERSTRÖM TESTİ ---
         window.openFagerstrom = function() { document.getElementById('fagerstromModal').classList.add('active'); };
         window.submitFagerstrom = function() {
             if(!currentUserForSheet) return;
@@ -497,7 +508,7 @@
             });
         };
 
-        // Tablo İşlemleri
+        // --- VERİ ÇEKME VE TABLO LİSTELEME ---
         onValue(countersRef, (snapshot) => {
             usersData = snapshot.val() || {};
             if(isAdmin) {
@@ -514,7 +525,6 @@
             const logsArray = user.logs ? Object.values(user.logs).sort((a,b)=>a-b) : [];
             const aSet = user.adminSettings || {};
             
-            // Tarih filtreleri (Ayrı Ayrı)
             const statsLogs = aSet.statsStartDate ? logsArray.filter(t => t >= aSet.statsStartDate) : logsArray;
             const badgeLogs = aSet.badgeStartDate ? logsArray.filter(t => t >= aSet.badgeStartDate) : logsArray;
 
@@ -587,21 +597,24 @@
             if (processedUsers.length === 0) { board.innerHTML = '<div style="padding: 30px; text-align: center; color: var(--text-muted);">Henüz kayıt yok.</div>'; return; }
 
             const maxWeek = Math.max(...processedUsers.map(u => u.weekCount));
-            processedUsers.sort((a, b) => currentTab === 'daily' ? b.todayCount - a.todayCount : b.weekCount - a.weekCount);
+            processedUsers.sort((a, b) => b.todayCount - a.todayCount); // Her zaman bugüne göre diz
             board.innerHTML = "";
 
             processedUsers.forEach((user, index) => {
-                const count = currentTab === 'daily' ? user.todayCount : user.weekCount;
+                // Her zaman günlük sayıyı devasa göster, toplam sayıyı minik olarak altına ekle
+                const dailyCount = user.todayCount;
+                const totalCount = user.totalCount;
+
                 let badgeClass = "rank-mid"; let icon = `<span style="font-size:14px;">${index+1}</span>`;
-                if (index === 0 && count > 0 && processedUsers.length > 1) { badgeClass = "rank-first"; icon = "💀"; } 
+                if (index === 0 && dailyCount > 0 && processedUsers.length > 1) { badgeClass = "rank-first"; icon = "💀"; } 
                 else if (index === processedUsers.length - 1 && processedUsers.length > 1) { badgeClass = "rank-last"; icon = "🌿"; }
 
                 const badgeStats = calculateAdvancedStats(user.badgeLogs);
                 user.earnedBadges = calculateUserBadges(badgeStats, (user.weekCount === maxWeek && user.weekCount > 0), user.todayLogs, user.totalCount, user.adminSettings);
                 let badgeIconsHtml = user.earnedBadges.map(b => BADGES[b].icon).join('');
 
-                const quote = getRandomQuote(user.todayCount);
-                const costStr = count > 0 ? `💸 ${count * COST_PER_ITEM} ₺` : "Tertemiz";
+                const quote = getRandomQuote(dailyCount);
+                const costStr = dailyCount > 0 ? `💸 ${dailyCount * COST_PER_ITEM} ₺` : "Tertemiz";
 
                 const row = document.createElement("div"); row.className = "list-row";
                 row.onclick = () => openUserSheet(user, quote);
@@ -611,14 +624,18 @@
                         <div class="row-name">${user.name} <span class="inline-badges">${badgeIconsHtml}</span></div>
                         <div class="row-quote">${quote}</div>
                     </div>
-                    <div class="row-stats"><div class="row-score">${count}</div><div class="row-cost">${costStr}</div></div>`;
+                    <!-- Çift Sayaç Görünümü (Bugün Dev, Toplam Minik) -->
+                    <div class="row-stats">
+                        <div class="row-score">${dailyCount}</div>
+                        <div class="row-total">TOPLAM: ${totalCount}</div>
+                    </div>`;
                 board.appendChild(row);
             });
         }
 
         window.openUserSheet = function(user, quote) {
             currentUserForSheet = user;
-            const stats = calculateAdvancedStats(user.statsLogs); // Sadece filtrelenmiş loglarla stats hesapla
+            const stats = calculateAdvancedStats(user.statsLogs); 
             
             document.getElementById('sheetName').innerText = user.name;
             document.getElementById('sheetQuote').innerText = quote;
