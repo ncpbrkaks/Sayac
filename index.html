@@ -49,7 +49,7 @@
         .btn-ring { position: absolute; top: -10px; left: -10px; right: -10px; bottom: -10px; border-radius: 50%; border: 1px solid rgba(48, 209, 88, 0.3); animation: pulse 2s infinite; pointer-events: none; }
         @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.15); opacity: 0; } }
 
-        /* Yeni Bildirim (Toast) CSS */
+        /* Toast Container */
         #toast-container { position: fixed; top: 15px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; width: 90%; max-width: 400px; }
         .toast { background: rgba(30, 30, 32, 0.90); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(255,69,58,0.4); border-left: 5px solid var(--ios-red); color: #fff; padding: 14px 18px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); font-size: 14px; font-weight: 500; line-height: 1.4; animation: slideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, fadeOut 0.4s ease-in forwards 4.6s; }
         @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -77,15 +77,9 @@
         .row-score { font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1; }
         .row-total { font-size: 11px; color: var(--text-muted); font-weight: 700; margin-top: 4px; letter-spacing: 0.5px; }
 
-        .admin-tools { position: absolute; right: -180px; height: 100%; top: 0; display: flex; align-items: center; opacity: 0; transition: all 0.3s; background: var(--card-bg); }
-        .edit-mode .list-row { transform: translateX(-180px); }
-        .edit-mode .admin-tools { opacity: 1; right: 0; }
-        .tool-btn { height: 100%; width: 45px; border: none; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; cursor: pointer; font-size: 11px; font-weight: 600; gap: 4px; padding: 0;}
-        .tool-add { background: var(--ios-blue); } .tool-sub { background: #FF9F0A; } .tool-zero { background: #8E8E93; } .tool-del { background: var(--ios-red); }
-
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        .modal-card { background: rgba(30,30,32,0.85); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-lg); width: 92%; max-width: 400px; max-height: 85vh; overflow-y: auto; padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .modal-card { background: rgba(30,30,32,0.92); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-lg); width: 92%; max-width: 400px; max-height: 85vh; overflow-y: auto; padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
         
         .form-group { margin-bottom: 18px; }
         .form-label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -124,8 +118,8 @@
         .badge-title { font-size: 13px; font-weight: 700; color: #fff; }
         .badge-desc { font-size: 11px; color: var(--text-muted); line-height: 1.3; margin-top: 3px;}
 
-        .life-card { margin: 0 20px 20px; padding: 18px; border-radius: var(--radius-lg); background: linear-gradient(135deg, rgba(48,209,88,0.2) 0%, rgba(48,209,88,0.05) 100%); border: 1px solid rgba(48,209,88,0.3); display: flex; align-items: center; gap: 15px; }
-        .life-card.negative { background: linear-gradient(135deg, rgba(255,69,58,0.2) 0%, rgba(255,69,58,0.05) 100%); border-color: rgba(255,69,58,0.3); }
+        .life-card { margin: 0 20px 20px; padding: 18px; border-radius: var(--radius-lg); background: linear-gradient(135deg, rgba(48,209,88,0.15) 0%, rgba(48,209,88,0.05) 100%); border: 1px solid rgba(48,209,88,0.3); display: flex; align-items: center; gap: 15px; }
+        .life-card.negative { background: linear-gradient(135deg, rgba(255,69,58,0.15) 0%, rgba(255,69,58,0.05) 100%); border-color: rgba(255,69,58,0.3); }
         .life-icon { font-size: 36px; }
         .life-text h4 { margin: 0 0 6px 0; font-size: 16px; font-weight: 700; color: #fff; }
         .life-text p { margin: 0; font-size: 13px; color: rgba(255,255,255,0.8); line-height: 1.4; }
@@ -137,8 +131,6 @@
     </style>
 </head>
 <body>
-    
-    <!-- Anlık Bildirim (Toast) Konteyneri -->
     <div id="toast-container"></div>
 
     <div id="loginModal" class="modal-overlay">
@@ -171,7 +163,7 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">İstatistik Referans Tarihi</label>
-                    <p style="font-size:11px; color:var(--text-muted); margin:0 0 6px 0;">Bu tarihten önceki loglar Gelişmiş Analiz'e dahil edilmez.</p>
+                    <p style="font-size:11px; color:var(--text-muted); margin:0 0 6px 0;">Bu tarihten önceki loglar Analiz'de yok sayılır.</p>
                     <input type="date" id="adminStatsDate" class="form-input">
                 </div>
                 <div class="form-group">
@@ -281,12 +273,12 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const countersRef = ref(db, "counters");
-        const actionRef = ref(db, "latest_action"); // Anlık bildirim (Toast) için db referansı
+        const actionRef = ref(db, "latest_action");
 
         const COST_PER_ITEM = 6;
         const MINS_LOST_PER_CIG = 11;
         let currentUserForSheet = null;
-        const pageLoadTime = Date.now(); // Toast'ların eski kayıtlardan fırlamaması için
+        const pageLoadTime = Date.now();
         
         const days = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
         document.getElementById('dateText').innerText = days[new Date().getDay()];
@@ -295,7 +287,7 @@
         const isAdmin = urlParams.get('admin') === 'patron';
         if (isAdmin) document.getElementById('adminToggleBtn').style.display = 'block';
 
-        let myName = localStorage.getItem("sayac_ios_v8");
+        let myName = localStorage.getItem("sayac_ios_v9");
         let usersData = {};
         function sanitizeKey(name) { return name.replace(/[.#$[\]/]/g, "_"); }
         if (myName) document.getElementById("loginModal").classList.remove('active');
@@ -329,32 +321,25 @@
         window.saveName = function() {
             const input = document.getElementById("nameInput").value.trim();
             if (input.length > 0) {
-                myName = input; localStorage.setItem("sayac_ios_v8", myName);
+                myName = input; localStorage.setItem("sayac_ios_v9", myName);
                 document.getElementById("loginModal").classList.remove('active');
                 update(ref(db, "counters/" + sanitizeKey(myName)), { name: myName });
             }
         };
 
-        // --- ANLIK BİLDİRİM (TOAST) TETİKLEYİCİSİ VE DİNLEYİCİSİ ---
         window.addSmoke = function() {
             if (!myName) return;
             if (navigator.vibrate) navigator.vibrate([20]);
             update(ref(db, "counters/" + sanitizeKey(myName)), { name: myName });
             push(ref(db, "counters/" + sanitizeKey(myName) + "/logs"), Date.now());
-            
-            // Toast bildirimi için Firebase'e anlık tetikleme gönderiyoruz
             set(actionRef, { user: myName, time: Date.now() });
         };
 
-        // Firebase'den anlık bildirimleri dinle (Tüm açık telefonlarda çalışır)
         onValue(actionRef, (snap) => {
             const data = snap.val();
-            if (data && data.time > pageLoadTime) { // Sadece sayfa açıldıktan sonraki tıklamaları yakala
-                showToast(data.user);
-            }
+            if (data && data.time > pageLoadTime) showToast(data.user);
         });
 
-        // Ekrana Düşen Kara Mizah Uyarılarını Üreten Fonksiyon
         function showToast(name) {
             const humorTemplates = [
                 `${name} aleti pet şişeye çeviriyor şu an.`,
@@ -372,14 +357,11 @@
                 `${name} mezar yerini premium pakete yükseltti.`
             ];
             const msg = humorTemplates[Math.floor(Math.random() * humorTemplates.length)];
-            
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             toast.className = 'toast';
             toast.innerText = `🚨 ${msg}`;
             container.appendChild(toast);
-            
-            // 5 Saniye sonra silinmesi CSS'deki 4.6s fadeOut animasyonuna denk gelir, DOM'dan temizleriz
             setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 5000);
         }
 
@@ -492,7 +474,7 @@
             }
         };
 
-        // --- FAGERSTRÖM TESTİ ---
+        // --- FAGERSTRÖM ---
         window.openFagerstrom = function() { document.getElementById('fagerstromModal').classList.add('active'); };
         window.submitFagerstrom = function() {
             if(!currentUserForSheet) return;
@@ -508,7 +490,20 @@
             });
         };
 
-        // --- VERİ ÇEKME VE TABLO LİSTELEME ---
+        // Format Zaman (Saat/Dakika/Gün)
+        const formatTime = (mins) => {
+            if (mins === 0) return "0 dk";
+            const d = Math.floor(mins / 1440);
+            const h = Math.floor((mins % 1440) / 60);
+            const m = mins % 60;
+            let res = [];
+            if(d>0) res.push(`${d} gün`);
+            if(h>0) res.push(`${h} saat`);
+            if(m>0) res.push(`${m} dk`);
+            return res.join(' ');
+        };
+
+        // Tablo İşlemleri
         onValue(countersRef, (snapshot) => {
             usersData = snapshot.val() || {};
             if(isAdmin) {
@@ -529,7 +524,7 @@
             const badgeLogs = aSet.badgeStartDate ? logsArray.filter(t => t >= aSet.badgeStartDate) : logsArray;
 
             const sToday = getStartOfToday(); const sWeek = getStartOfWeek();
-            const todayLogs = logsArray.filter(t => t >= sToday); // Bugün her zaman gerçek bugündür
+            const todayLogs = logsArray.filter(t => t >= sToday); 
             
             return {
                 name: user.name,
@@ -597,11 +592,10 @@
             if (processedUsers.length === 0) { board.innerHTML = '<div style="padding: 30px; text-align: center; color: var(--text-muted);">Henüz kayıt yok.</div>'; return; }
 
             const maxWeek = Math.max(...processedUsers.map(u => u.weekCount));
-            processedUsers.sort((a, b) => b.todayCount - a.todayCount); // Her zaman bugüne göre diz
+            processedUsers.sort((a, b) => b.todayCount - a.todayCount); 
             board.innerHTML = "";
 
             processedUsers.forEach((user, index) => {
-                // Her zaman günlük sayıyı devasa göster, toplam sayıyı minik olarak altına ekle
                 const dailyCount = user.todayCount;
                 const totalCount = user.totalCount;
 
@@ -624,10 +618,9 @@
                         <div class="row-name">${user.name} <span class="inline-badges">${badgeIconsHtml}</span></div>
                         <div class="row-quote">${quote}</div>
                     </div>
-                    <!-- Çift Sayaç Görünümü (Bugün Dev, Toplam Minik) -->
                     <div class="row-stats">
                         <div class="row-score">${dailyCount}</div>
-                        <div class="row-total">TOPLAM: ${totalCount}</div>
+                        <div class="row-total">TPL: ${totalCount}</div>
                     </div>`;
                 board.appendChild(row);
             });
@@ -653,16 +646,42 @@
                 fArea.innerHTML = `<div style="padding:0 20px;"><div style="font-size:12px; color:var(--text-muted); text-transform:uppercase; font-weight:700; letter-spacing:1px;">Klinik Teşhis (Skor: ${user.fagerstrom.score})</div><div style="font-size:15px; color:#fff; margin-top:6px; font-style:italic;">"${user.fagerstrom.resultText}"</div></div>`;
                 
                 const diff = user.fagerstrom.baseline - user.todayCount;
+                const absLostToday = user.todayCount * MINS_LOST_PER_CIG;
+                const absLostTotal = user.totalCount * MINS_LOST_PER_CIG;
+
+                let baselineHtml = "";
+                let cardClass = "";
+                let icon = "";
+                let title = "";
+
                 if(diff > 0) {
-                    const savedMins = diff * MINS_LOST_PER_CIG;
-                    const h = Math.floor(savedMins/60); const m = savedMins%60;
-                    lArea.innerHTML = `<div class="life-card"><div class="life-icon">⏳</div><div class="life-text"><h4>Ömrün Uzadı!</h4><p>Ortalamanın altına düştüğün için beklenen ömrüne <strong>${h>0?h+' sa ':''}${m} dk</strong> eklendi.</p></div></div>`;
+                    cardClass = "";
+                    icon = "⏳";
+                    title = "Görece Uzun Yaşam";
+                    baselineHtml = `Kendi pis ortalamanın altına düştüğün için beklenen ömrüne <strong>${formatTime(diff * MINS_LOST_PER_CIG)}</strong> geri eklendi.`;
                 } else if (diff < 0) {
-                    const lostMins = Math.abs(diff) * MINS_LOST_PER_CIG;
-                    lArea.innerHTML = `<div class="life-card negative"><div class="life-icon">⚰️</div><div class="life-text"><h4>Mezara Erken Bilet</h4><p>Limitini aştığın için beklenen ömründen fazladan <strong>${lostMins} dk</strong> daha silindi.</p></div></div>`;
+                    cardClass = "negative";
+                    icon = "⚰️";
+                    title = "Mezara Erken Bilet";
+                    baselineHtml = `Kendi limitini bile aştığın için beklenen ömründen fazladan <strong>${formatTime(Math.abs(diff) * MINS_LOST_PER_CIG)}</strong> daha silindi.`;
                 } else {
-                    lArea.innerHTML = `<div class="life-card" style="background:rgba(255,255,255,0.05); border-color:rgba(255,255,255,0.1);"><div class="life-icon">⚖️</div><div class="life-text"><h4>Standart Çürüme</h4><p>Limitindesin. Beklenen standart ölüm tarihine doğru istikrarlı gidiş.</p></div></div>`;
+                    cardClass = "";
+                    icon = "⚖️";
+                    title = "İstikrarlı Çürüme";
+                    baselineHtml = `Limitindesin. Beklenen standart ölüm tarihine doğru istikrarlı gidiş.`;
                 }
+
+                let absoluteHtml = `Hiç içmeyen temiz bir insana kıyasla; bugün <strong>${absLostToday > 0 ? formatTime(absLostToday) : "hiç"}</strong>, sisteme girdiğinden beri toplam <strong>${formatTime(absLostTotal)}</strong> yaşam süreni kendi ellerinle çöpe attın.`;
+
+                lArea.innerHTML = `<div class="life-card ${cardClass}" style="${diff===0 ? 'background:rgba(255,255,255,0.05); border-color:rgba(255,255,255,0.1);' : ''}">
+                    <div class="life-icon">${icon}</div>
+                    <div class="life-text">
+                        <h4>${title}</h4>
+                        <p style="margin-bottom:8px;">${baselineHtml}</p>
+                        <p style="padding-top:8px; border-top:1px solid rgba(255,255,255,0.1); font-size:12px; color:rgba(255,255,255,0.6);">${absoluteHtml}</p>
+                    </div>
+                </div>`;
+
             } else { fArea.innerHTML = ""; lArea.innerHTML = ""; }
 
             const badgeContainer = document.getElementById('sheetBadges');
