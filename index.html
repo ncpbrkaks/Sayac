@@ -1,3 +1,4 @@
+```html:index.html
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -5,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="/manifest.json">
     <title>Tüketim Raporu</title>
     <style>
         :root {
@@ -27,19 +29,12 @@
             background-color: var(--bg-base);
             background-image: radial-gradient(circle at top left, rgba(10, 132, 255, 0.1), transparent 50%),
                               radial-gradient(circle at bottom right, rgba(48, 209, 88, 0.05), transparent 50%);
-            background-attachment: fixed;
-            color: var(--text-main);
-            margin: 0;
+            background-attachment: fixed; color: var(--text-main); margin: 0;
             padding: env(safe-area-inset-top) 20px env(safe-area-inset-bottom) 20px;
             display: flex; flex-direction: column; align-items: center; min-height: 100vh;
         }
 
-        .glass {
-            background: var(--bg-glass);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 0.5px solid rgba(255,255,255,0.1);
-        }
+        .glass { background: var(--bg-glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 0.5px solid rgba(255,255,255,0.1); }
 
         .header { width: 100%; max-width: 400px; display: flex; justify-content: space-between; align-items: flex-end; margin-top: 15px; padding-bottom: 20px; }
         .header h1 { font-size: 32px; font-weight: 800; margin: 0; letter-spacing: 0.5px; }
@@ -48,27 +43,18 @@
         .admin-btn { color: var(--ios-blue); font-size: 14px; background: rgba(10,132,255,0.15); border: none; padding: 8px 14px; border-radius: 12px; cursor: pointer; font-weight: 600; display: none; transition: 0.2s; }
         .admin-btn:active { transform: scale(0.95); opacity: 0.8; }
 
-        .btn-container { margin: 10px 0 35px 0; display: flex; justify-content: center; position: relative; }
-        .btn-add {
-            background: linear-gradient(135deg, #30D158 0%, #24993F 100%);
-            border: none; border-radius: 50%; width: 130px; height: 130px;
-            color: #fff; font-size: 56px; font-weight: 300;
-            box-shadow: 0 10px 30px rgba(48, 209, 88, 0.4), inset 0 2px 5px rgba(255,255,255,0.3);
-            cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center;
-        }
+        .btn-container { margin: 0; display: flex; justify-content: center; position: relative; }
+        .btn-add { background: linear-gradient(135deg, #30D158 0%, #24993F 100%); border: none; border-radius: 50%; width: 130px; height: 130px; color: #fff; font-size: 56px; font-weight: 300; box-shadow: 0 10px 30px rgba(48, 209, 88, 0.4), inset 0 2px 5px rgba(255,255,255,0.3); cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center; }
         .btn-add:active { transform: scale(0.9); box-shadow: 0 5px 15px rgba(48, 209, 88, 0.2); }
         .btn-ring { position: absolute; top: -10px; left: -10px; right: -10px; bottom: -10px; border-radius: 50%; border: 1px solid rgba(48, 209, 88, 0.3); animation: pulse 2s infinite; pointer-events: none; }
         @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.15); opacity: 0; } }
 
-        /* Toast Bildirim Sistemi */
+        /* S.O.S. Butonu */
+        .btn-sos { background: linear-gradient(135deg, rgba(255,69,58,0.2) 0%, rgba(255,69,58,0.05) 100%); border: 1px solid rgba(255,69,58,0.4); color: var(--ios-red); padding: 10px 24px; border-radius: 20px; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.2s; box-shadow: 0 5px 15px rgba(255,69,58,0.1); }
+        .btn-sos:active { transform: scale(0.95); background: rgba(255,69,58,0.3); }
+
         #toast-container { position: fixed; top: 15px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; width: 90%; max-width: 400px; }
-        .toast {
-            background: rgba(30, 30, 32, 0.90); backdrop-filter: blur(15px);
-            border: 1px solid rgba(255,69,58,0.4); border-left: 5px solid var(--ios-red);
-            color: #fff; padding: 14px 18px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            font-size: 14px; font-weight: 500; line-height: 1.4;
-            animation: slideDown 0.4s forwards, fadeOut 0.4s ease-in forwards 4.6s;
-        }
+        .toast { background: rgba(30, 30, 32, 0.90); backdrop-filter: blur(15px); border: 1px solid rgba(255,69,58,0.4); border-left: 5px solid var(--ios-red); color: #fff; padding: 14px 18px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); font-size: 14px; font-weight: 500; line-height: 1.4; animation: slideDown 0.4s forwards, fadeOut 0.4s ease-in forwards 4.6s; }
         @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes fadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-20px); } }
 
@@ -100,9 +86,8 @@
         .modal-card { background: rgba(30,30,32,0.92); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-lg); width: 92%; max-width: 400px; max-height: 85vh; overflow-y: auto; padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
         
         .form-group { margin-bottom: 18px; }
-        .form-label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; }
-        .form-select, .form-input { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 14px; border-radius: 12px; font-size: 15px; outline: none; }
-        
+        .form-label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-select, .form-input { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 14px; border-radius: 12px; font-size: 15px; outline: none; appearance: none;}
         .primary-btn { width: 100%; background: var(--ios-blue); color: white; border: none; padding: 15px; font-size: 16px; font-weight: 600; border-radius: 12px; cursor: pointer; margin-top: 15px; transition: 0.2s; }
         .primary-btn:active { transform: scale(0.98); opacity: 0.9; }
         .close-btn { width: 100%; background: transparent; color: var(--text-muted); border: none; padding: 15px; font-size: 16px; font-weight: 600; border-radius: 12px; cursor: pointer; margin-top: 5px; }
@@ -176,7 +161,7 @@
     <div id="loginModal" class="modal-overlay">
         <div class="modal-card glass" style="text-align: center;">
             <h2 style="margin-top:0; font-weight:800;">Sayaca Katıl</h2>
-            <p style="font-size:13px; color:var(--text-muted);">Grupta görüneceğin ismi yaz. Bir daha değiştiremezsin.</p>
+            <p style="font-size:13px; color:var(--text-muted);">Grupta görüneceğin ismi yaz. İlk girişte bildirimlere izin vermeyi unutma.</p>
             <input type="text" id="nameInput" class="form-input" placeholder="Örn: Ahmet" autocomplete="off" maxlength="15" style="text-align:center; margin:15px 0;">
             <button class="primary-btn" onclick="saveName()">İçeri Gir</button>
         </div>
@@ -273,9 +258,13 @@
         <button class="admin-btn" id="adminToggleBtn" onclick="document.getElementById('adminPanelModal').classList.add('active')">⚙️ Panel</button>
     </div>
 
-    <div class="btn-container">
-        <div class="btn-ring"></div>
-        <button class="btn-add" id="mainBtn" onclick="addSmoke()">+1</button>
+    <!-- Buton Konteyneri (S.O.S. Eklendi) -->
+    <div style="display:flex; flex-direction:column; align-items:center; gap: 15px; margin: 10px 0 35px 0;">
+        <div class="btn-container" style="margin:0;">
+            <div class="btn-ring"></div>
+            <button class="btn-add" id="mainBtn" onclick="addSmoke()">+1</button>
+        </div>
+        <button class="btn-sos" onclick="triggerSOS()">🚨 Krizdeyim (S.O.S.)</button>
     </div>
 
     <div class="list-container glass" id="leaderboard">
@@ -333,24 +322,35 @@
     <!-- JAVASCRIPT KODLARI -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-        import { getDatabase, ref, onValue, push, set, get, remove, update } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
+        import { getDatabase, ref, onValue, push, set, get, remove, update, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
 
         // Firebase Ayarları
         const firebaseConfig = {
             apiKey: "AIzaSyA2-rUtVFadlncw_TPBK53qiLMVKhYKa6k",
             authDomain: "sayac-82f63.firebaseapp.com",
             databaseURL: "https://sayac-82f63-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "sayac-82f63"
+            projectId: "sayac-82f63",
+            messagingSenderId: "210348694246",
+            appId: "1:210348694246:web:d45a93372c2e406296f927"
         };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const countersRef = ref(db, "counters");
         const actionRef = ref(db, "latest_action");
+        const sosRef = query(ref(db, "sos_alerts"), limitToLast(1));
+
+        // PWA Servis İşçisi Kaydı (Arka Plan Bildirimleri İçin)
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/firebase-messaging-sw.js').catch(function(err) {
+                console.log('Service worker yüklenemedi:', err);
+            });
+        }
 
         const COST_PER_ITEM = 6;
         const MINS_LOST_PER_CIG = 11;
         let currentUserForSheet = null;
         const pageLoadTime = Date.now();
+        let isFirstSOSLoad = true;
         
         // Günleri Türkçe yazdırma
         const days = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
@@ -364,7 +364,7 @@
         }
 
         // Kullanıcı Girişi
-        let myName = localStorage.getItem("sayac_ios_v12");
+        let myName = localStorage.getItem("sayac_ios_v13");
         let usersData = {};
         function sanitizeKey(name) { return name.replace(/[.#$[\]/]/g, "_"); }
         
@@ -405,13 +405,21 @@
             const day = d.getDay(); return new Date(d.setDate(d.getDate() - day + (day === 0 ? -6 : 1))).getTime();
         }
 
+        // Bildirim İzni İsteme Fonksiyonu
+        window.requestPushPermission = function() {
+            if ('Notification' in window) {
+                Notification.requestPermission();
+            }
+        };
+
         window.saveName = function() {
             const input = document.getElementById("nameInput").value.trim();
             if (input.length > 0) {
                 myName = input;
-                localStorage.setItem("sayac_ios_v12", myName);
+                localStorage.setItem("sayac_ios_v13", myName);
                 document.getElementById("loginModal").classList.remove('active');
                 update(ref(db, "counters/" + sanitizeKey(myName)), { name: myName });
+                requestPushPermission(); // Giriş yapınca bildirim izni iste
             }
         };
 
@@ -424,29 +432,59 @@
             set(actionRef, { user: myName, time: Date.now() }); // Toast bildirimi tetikle
         };
 
+        // 🚨 S.O.S. Sinyali Gönderme
+        window.triggerSOS = function() {
+            if (!myName) return;
+            push(ref(db, "sos_alerts"), { user: myName, time: Date.now() });
+            showToast("S.O.S. Sinyali Gönderildi! Tim Yolda...");
+        };
+
+        // S.O.S Sinyallerini Dinleme (Telefon Kilitli Değilken/Uygulama Açıkken Bildirim Atar)
+        onValue(sosRef, (snap) => {
+            if(isFirstSOSLoad) { isFirstSOSLoad = false; return; }
+            snap.forEach(child => {
+                const data = child.val();
+                // Sadece son 10 saniye içinde atılan S.O.S.'leri ve kendi atmadıklarımızı yakala
+                if(data && data.time > Date.now() - 10000 && data.user !== myName) {
+                    const msg = `🚨 KIRMIZI KOD! ${data.user} kriz geçiriyor, müdahale edin!`;
+                    showToast(msg);
+                    
+                    // Telefonun Yerel Bildirimini (Native Push) Tetikle
+                    if ('Notification' in window && Notification.permission === "granted") {
+                        new Notification("Acil Müdahale Timi!", { body: msg, icon: "🚨" });
+                        if(navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 200]); // SOS Titreşimi
+                    }
+                }
+            });
+        });
+
         // Anlık Toast Dinleyicisi
         onValue(actionRef, (snap) => {
             const data = snap.val();
-            if (data && data.time > pageLoadTime) {
-                showToast(data.user);
+            if (data && data.time > pageLoadTime && data.user !== myName) {
+                showToast(data.user, false);
             }
         });
 
-        function showToast(name) {
-            const msgs = [
-                `${name} aleti pet şişeye çeviriyor şu an.`,
-                `${name} sperm kalitesini %40 düşürdü.`,
-                `${name} Azrail'in cebine bahşiş sıkıştırdı.`,
-                `${name} morgdan VIP sırasını garantiledi.`,
-                `Oksijen israfı: ${name} ciğerleri harladı.`,
-                `Ambulanslar ${name} için motorları ısıtıyor.`,
-                `${name} akciğerlerine asfalttan bir katman daha attı.`
-            ];
-            const msg = msgs[Math.floor(Math.random() * msgs.length)];
+        function showToast(text, isSOS = false) {
+            let finalMsg = text;
+            if(!isSOS && !text.includes("S.O.S")) {
+                const msgs = [
+                    `${text} aleti pet şişeye çeviriyor şu an.`,
+                    `${text} sperm kalitesini %40 düşürdü.`,
+                    `${text} Azrail'in cebine bahşiş sıkıştırdı.`,
+                    `${text} morgdan VIP sırasını garantiledi.`,
+                    `Oksijen israfı: ${text} ciğerleri harladı.`,
+                    `Ambulanslar ${text} için motorları ısıtıyor.`,
+                    `${text} akciğerlerine asfalttan bir katman daha attı.`
+                ];
+                finalMsg = `🚨 ${msgs[Math.floor(Math.random() * msgs.length)]}`;
+            }
+
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             toast.className = 'toast';
-            toast.innerText = `🚨 ${msg}`;
+            toast.innerText = finalMsg;
             container.appendChild(toast);
             setTimeout(() => {
                 if (toast.parentNode) toast.parentNode.removeChild(toast);
@@ -819,14 +857,15 @@
             }
             
             const maxWeek = Math.max(...pUsers.map(u => u.weekCount));
-            pUsers.sort((a, b) => b.todayCount - a.todayCount);
+            pUsers.sort((a, b) => currentTab === 'daily' ? b.todayCount - a.todayCount : b.weekCount - a.weekCount);
             board.innerHTML = "";
 
             pUsers.forEach((u, i) => {
+                const currentCount = currentTab === 'daily' ? u.todayCount : u.weekCount;
                 let bClass = "rank-mid";
                 let icon = `<span style="font-size:14px;">${i+1}</span>`;
                 
-                if (i === 0 && u.todayCount > 0 && pUsers.length > 1) { bClass = "rank-first"; icon = "💀"; }
+                if (i === 0 && currentCount > 0 && pUsers.length > 1) { bClass = "rank-first"; icon = "💀"; }
                 else if (i === pUsers.length - 1 && pUsers.length > 1) { bClass = "rank-last"; icon = "🌿"; }
                 
                 const bStats = calculateAdvancedStats(u.badgeLogs);
@@ -845,7 +884,7 @@
                         <div class="row-quote">${quote}</div>
                     </div>
                     <div class="row-stats">
-                        <div class="row-score">${u.todayCount}</div>
+                        <div class="row-score">${currentCount}</div>
                         <div class="row-total">TPL: ${u.totalCount}</div>
                     </div>`;
                 board.appendChild(row);
