@@ -767,4 +767,370 @@ Bu butona basıldığında telefonun kilit ekranına Sizin onayınızı alan (il
             const q2Val = parseInt(document.getElementById('f2').value);
             const baseline = q2Val === 0 ? 7 : q2Val === 1 ? 15 : q2Val === 2 ? 25 : 40;
             
-            let res = score <= 3 ? "Şimdilik
+            let res = score <= 3 ? "Şimdilik sadece şekil yapıyorsun ama yolun sonu belli." : 
+                      score <= 6 ? "Ciğerlerin alarm veriyor, 'bırakırım ya' yalanlarına inanmayı kes." : 
+                      "Damarlarında kan değil saf zift dolaşıyor. Oksijenle arana küslük girmiş.";
+                      
+            update(ref(db, `counters/${sanitizeKey(currentUserForSheet.name)}/fagerstrom`), { score, baseline, resultText: res }).then(() => {
+                document.getElementById('fagerstromModal').classList.remove('active');
+                closeSheet();
+            });
+        };
+
+        const formatTime = (mins) => {
+            if (mins === 0) return "0 dk";
+            const d = Math.floor(mins / 1440);
+            const h = Math.floor((mins % 1440) / 60);
+            const m = mins % 60;
+            let res = [];
+            if(d > 0) res.push(`${d} gün`);
+            if(h > 0) res.push(`${h} saat`);
+            if(m > 0) res.push(`${m} dk`);
+            return res.join(' ');
+        };
+
+        // --- VERİ ÇEKME VE TABLO LİSTELEME ---
+        onValue(countersRef, (snapshot) => {
+            usersData = snapshot.val() || {};
+            
+            if(isAdmin) {
+                const s = document.getElementById('adminUserSelect');
+                const c = s.value;
+                s.innerHTML = '<option value="">Kişi seç...</option>';
+                Object.keys(usersData).forEach(k => {
+                    if(usersData[k].name) {
+                        s.innerHTML += `<option value="${k}">${usersData[k].name}</option>`;
+                    }
+                });
+                s.value = c;
+                if(document.getElementById('adminLogManager').style.display === 'block') {
+                    renderAdminLogList();
+                }
+            }
+            renderLeaderboard(); 
+        });
+
+        function processUserData(user) {
+            const logsArray = user.logs ? Object.entries(user.logs).map(([id, ts])=>({id, ts})).sort((a,b)=>a.ts-b.ts) : [];
+            const aSet = user.adminSettings || {};
+            
+            const statsLogs = aSet.statsStartDate ? logsArray.filter(l => l.ts >= aSet.statsStartDate) : logsArray;
+            const badgeLogs = aSet.badgeStartDate ? logsArray.filter(l => l.ts >= aSet.badgeStartDate) : logsArray;
+            
+            const sToday = getStartOfToday();
+            const sWeek = getStartOfWeek();
+            const todayLogs = logsArray.filter(l => l.ts >= sToday);
+            
+            return {
+                name: user.name,
+                todayCount: todayLogs.length,
+                weekCount: logsArray.filter(l => l.ts >= sWeek).length,
+                totalCount: logsArray.length,
+                todayLogs: todayLogs,
+                statsLogs: statsLogs,
+                badgeLogs: badgeLogs,
+                allLogs: logsArray,
+                adminSettings: aSet,
+                fagerstrom: user.fagerstrom || null
+            };
+        }
+
+        function calculateAdvancedStats(logsObjArr) {
+            if (!logsObjArr || logsObjArr.length === 0) return null;
+            const daysMap = {};
+            logsObjArr.forEach(l => {
+                const dateStr = new Date(l.ts).toLocaleDateString('tr-TR');
+                if(!daysMap[dateStr]) daysMap[dateStr] = [];
+                daysMap[dateStr].push(l.ts);
+            });
+            
+            let minDay = null; let minCount = Infinity;
+            for (let [date, dayLogs] of Object.entries(daysMap)) {
+                if (dayLogs.length < minCount) { minCount = dayLogs.length; minDay = date; }
+            }
+            
+            let maxNightDay = "Yok"; let maxNightCount = 0;
+            for (let [date, dayLogs] of Object.entries(daysMap)) {
+                let nightCount = dayLogs.filter(t => {
+                    const h = new Date(t).getHours();
+                    return h >= 0 && h < 5;
+                }).length;
+                if (nightCount > maxNightCount) { maxNightCount = nightCount; maxNightDay = date; }
+            }
+            
+            let maxHourCount = 0; let maxHourTime = null;
+            for(let i = 0; i < logsObjArr.length; i++) {
+                let countInHour = 1;
+                for(let j = i + 1; j < logsObjArr.length; j++) {
+                    if (logsObjArr[j].ts - logsObjArr[i].ts <= 3600000) countInHour++;
+                    else break;
+                }
+                if (countInHour > maxHourCount) { maxHourCount = countInHour; maxHourTime = logsObjArr[i].ts; }
+            }
+            
+            let chainCount = 0;
+            for(let i = 1; i < logsObjArr.length; i++) {
+                if (logsObjArr[i].ts - logsObjArr[i-1].ts <= 900000) chainCount++;
+            }
+            
+            return { minDay, minCount, maxNightDay, maxNightCount, maxHourCount, maxHourTime, chainCount };
+        }
+
+        function calculateUserBadges(bStats, isVip, todayLogsObj, totalCount, aSet) {
+            let auto = [];
+            if (bStats) {
+                if (bStats.maxHourCount >= 4) auto.push('baca');
+                if (bStats.chainCount >= 3) auto.push('zincir');
+                if (bStats.maxNightCount >= 4) auto.push('vampir');
+            }
+            
+            if (todayLogsObj.some(l => { const h = new Date(l.ts).getHours(); return h >= 5 && h < 7; })) auto.push('horoz');
+            if (todayLogsObj.length === 0 && totalCount > 0) auto.push('fotosentez');
+            if (isVip) auto.push('vip');
+            if (totalCount >= 100) auto.push('yuz');
+            
+            let finalSet = new Set(auto);
+            const mB = aSet.manualBadges || {};
+            Object.keys(BADGES).forEach(b => {
+                if(mB[b] === 'forceOn') finalSet.add(b);
+                if(mB[b] === 'forceOff') finalSet.delete(b);
+            });
+            
+            return Array.from(finalSet);
+        }
+
+        function renderLeaderboard() {
+            const board = document.getElementById("leaderboard");
+            const pUsers = Object.values(usersData).filter(u => u && u.name).map(processUserData);
+            
+            if (pUsers.length === 0) {
+                board.innerHTML = '<div style="padding: 30px; text-align: center; color: var(--text-muted);">Henüz kayıt yok.</div>';
+                return;
+            }
+            
+            const maxWeek = Math.max(...pUsers.map(u => u.weekCount));
+            pUsers.sort((a, b) => currentTab === 'daily' ? b.todayCount - a.todayCount : b.weekCount - a.weekCount);
+            board.innerHTML = "";
+
+            pUsers.forEach((u, i) => {
+                const currentCount = currentTab === 'daily' ? u.todayCount : u.weekCount;
+                let bClass = "rank-mid";
+                let icon = `<span style="font-size:14px;">${i+1}</span>`;
+                
+                if (i === 0 && currentCount > 0 && pUsers.length > 1) { bClass = "rank-first"; icon = "💀"; }
+                else if (i === pUsers.length - 1 && pUsers.length > 1) { bClass = "rank-last"; icon = "🌿"; }
+                
+                const bStats = calculateAdvancedStats(u.badgeLogs);
+                u.earnedBadges = calculateUserBadges(bStats, (u.weekCount === maxWeek && u.weekCount > 0), u.todayLogs, u.totalCount, u.adminSettings);
+                let bIcons = u.earnedBadges.map(b => BADGES[b].icon).join('');
+                
+                const quote = getRandomQuote(u.todayCount);
+                
+                const row = document.createElement("div");
+                row.className = "list-row";
+                row.onclick = () => openUserSheet(u, quote);
+                row.innerHTML = `
+                    <div class="rank-badge ${bClass}">${icon}</div>
+                    <div class="row-content">
+                        <div class="row-name">${u.name} <span class="inline-badges">${bIcons}</span></div>
+                        <div class="row-quote">${quote}</div>
+                    </div>
+                    <div class="row-stats">
+                        <div class="row-score">${currentCount}</div>
+                        <div class="row-total">TPL: ${u.totalCount}</div>
+                    </div>`;
+                board.appendChild(row);
+            });
+        }
+
+        // Tüketim Tablosu Grafik Rendering
+        window.setChartTab = function(days) {
+            document.getElementById('tabChart7').classList.toggle('active', days === 7);
+            document.getElementById('tabChart30').classList.toggle('active', days === 30);
+            renderChartTable(days);
+        };
+
+        window.renderChartTable = function(days) {
+            if(!currentUserForSheet) return;
+            const container = document.getElementById('chartContainer');
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            
+            let dCounts = [];
+            for(let i = 0; i < days; i++) {
+                let d = new Date(today);
+                d.setDate(today.getDate() - i);
+                dCounts.push({
+                    dStr: d.toLocaleDateString('tr-TR', {day:'numeric', month:'short'}),
+                    full: d.toLocaleDateString('tr-TR'),
+                    c: 0
+                });
+            }
+            
+            currentUserForSheet.allLogs.forEach(l => {
+                let fs = new Date(l.ts).toLocaleDateString('tr-TR');
+                let found = dCounts.find(x => x.full === fs);
+                if(found) found.c++;
+            });
+            
+            let html = `<div style="background:rgba(0,0,0,0.3); border-radius:16px; border:1px solid rgba(255,255,255,0.05); overflow:hidden;">`;
+            dCounts.forEach((day, i) => {
+                let bg = i === 0 ? 'background:rgba(255,255,255,0.05);' : '';
+                html += `
+                <div style="display:flex; justify-content:space-between; padding:12px 16px; border-bottom:1px solid rgba(255,255,255,0.05); font-size:14px; ${bg}">
+                    <span style="color:var(--text-muted); width:80px;">${i===0 ? 'Bugün' : day.dStr}</span>
+                    <span style="font-weight:700; color:#fff;">${day.c} Adet</span>
+                    <span style="color:var(--ios-red); font-weight:600; width:60px; text-align:right;">${day.c * COST_PER_ITEM} ₺</span>
+                </div>`;
+            });
+            html += `</div>`;
+            container.innerHTML = html;
+        };
+
+        // --- PROFİL KARTI AÇILIŞI ---
+        window.openUserSheet = function(user, quote) {
+            currentUserForSheet = user;
+            const stats = calculateAdvancedStats(user.statsLogs); 
+            
+            document.getElementById('sheetName').innerText = user.name;
+            document.getElementById('sheetQuote').innerText = quote;
+            document.getElementById('sheetTodayCost').innerText = (user.todayCount * COST_PER_ITEM) + " ₺";
+            document.getElementById('sheetWeekCount').innerText = user.weekCount;
+            document.getElementById('sheetTotalCost').innerText = (user.totalCount * COST_PER_ITEM) + " ₺";
+
+            // Sanal Ciğer Render
+            const rawLogs = user.allLogs.map(l => l.ts);
+            const lungHp = calculateLungHealth(rawLogs);
+            const lungArea = document.getElementById('lungArea');
+            let stageClass = "lung-stage-4"; let color = "#FF453A"; let statusText = "Morgluk";
+            
+            if(lungHp >= 80) { stageClass = "lung-stage-1"; color = "#30D158"; statusText = "Oksijen Zengini"; }
+            else if(lungHp >= 40) { stageClass = "lung-stage-2"; color = "#FF9F0A"; statusText = "Dumanlı Sünger"; }
+            else if(lungHp >= 10) { stageClass = "lung-stage-3"; color = "#FF453A"; statusText = "Asfalt Yuvası"; }
+            
+            lungArea.innerHTML = `
+                <div class="lung-container" id="lungContainer" onclick="pokeLung(${lungHp})">
+                    <div class="lung-quote" id="lungQuote">...</div>
+                    <div class="lung-emoji ${stageClass}">🫁</div>
+                    <div class="lung-status-text" style="color:${color}">${statusText}</div>
+                    <div class="lung-hp-bg"><div class="lung-hp-bar" style="width:${lungHp}%; background:${color};"></div></div>
+                    <div style="font-size:11px; color:var(--text-muted); margin-top:5px; font-weight:600;">CİĞER BÜTÜNLÜĞÜ: %${Math.round(lungHp)}</div>
+                </div>`;
+
+            // Fagerström ve Ömür Hesabı
+            const fArea = document.getElementById('fagerstromArea');
+            const lArea = document.getElementById('lifeStatsArea');
+            
+            if(!user.fagerstrom && user.name === myName) {
+                fArea.innerHTML = `<div class="test-banner" onclick="openFagerstrom()">🔬 Klinik Bağımlılık Testini Çöz</div>`;
+                lArea.innerHTML = "";
+            } else if (user.fagerstrom) {
+                fArea.innerHTML = `<div style="padding:0 20px;"><div style="font-size:12px; color:var(--text-muted); text-transform:uppercase; font-weight:700; letter-spacing:1px;">Klinik Teşhis (Skor: ${user.fagerstrom.score})</div><div style="font-size:15px; color:#fff; margin-top:6px; font-style:italic;">"${user.fagerstrom.resultText}"</div></div>`;
+                
+                const diff = user.fagerstrom.baseline - user.todayCount;
+                const absLostToday = user.todayCount * MINS_LOST_PER_CIG;
+                const absLostTotal = user.totalCount * MINS_LOST_PER_CIG;
+                
+                let bHtml = ""; let cClass = ""; let icon = ""; let title = "";
+                
+                if(diff > 0) {
+                    cClass = ""; icon = "⏳"; title = "Görece Uzun Yaşam";
+                    bHtml = `Ortalamanın altına düştüğün için beklenen ömrüne <strong>${formatTime(diff * MINS_LOST_PER_CIG)}</strong> geri eklendi.`;
+                } else if (diff < 0) {
+                    cClass = "negative"; icon = "⚰️"; title = "Mezara Erken Bilet";
+                    bHtml = `Limitini bile aştığın için beklenen ömründen fazladan <strong>${formatTime(Math.abs(diff) * MINS_LOST_PER_CIG)}</strong> daha silindi.`;
+                } else {
+                    cClass = ""; icon = "⚖️"; title = "İstikrarlı Çürüme";
+                    bHtml = `Limitindesin. Beklenen standart ölüm tarihine doğru istikrarlı gidiş.`;
+                }
+                
+                let aHtml = `Hiç içmeyen temiz bir insana kıyasla; bugün <strong>${absLostToday > 0 ? formatTime(absLostToday) : "hiç"}</strong>, sisteme girdiğinden beri toplam <strong>${formatTime(absLostTotal)}</strong> yaşam süreni çöpe attın.`;
+                
+                lArea.innerHTML = `<div class="life-card ${cClass}" style="${diff===0 ? 'background:rgba(255,255,255,0.05); border-color:rgba(255,255,255,0.1);' : ''}">
+                    <div class="life-icon">${icon}</div>
+                    <div class="life-text">
+                        <h4>${title}</h4>
+                        <p style="margin-bottom:8px;">${bHtml}</p>
+                        <p style="padding-top:8px; border-top:1px solid rgba(255,255,255,0.1); font-size:12px; color:rgba(255,255,255,0.6);">${aHtml}</p>
+                    </div>
+                </div>`;
+            } else {
+                fArea.innerHTML = "";
+                lArea.innerHTML = "";
+            }
+
+            // Rozetler
+            const badgeContainer = document.getElementById('sheetBadges');
+            const badgeTitle = document.getElementById('badgeTitle');
+            badgeContainer.innerHTML = '';
+            
+            if (user.earnedBadges.length > 0) {
+                badgeTitle.style.display = 'flex';
+                user.earnedBadges.forEach(b => {
+                    const badge = BADGES[b];
+                    badgeContainer.innerHTML += `
+                    <div class="badge-item">
+                        <div class="badge-icon">${badge.icon}</div>
+                        <div>
+                            <div class="badge-title">${badge.title}</div>
+                            <div class="badge-desc">${badge.desc}</div>
+                        </div>
+                    </div>`;
+                });
+            } else {
+                badgeTitle.style.display = 'none';
+            }
+
+            // Tabloyu Göster
+            setChartTab(7);
+
+            // Gelişmiş İstatistikler
+            const advContainer = document.getElementById('advancedStats');
+            if (!stats) {
+                advContainer.innerHTML = '<div style="grid-column: 1/-1; text-align:center; color:var(--text-muted); font-size:13px; padding:20px;">Analiz için yeterli veri yok.</div>';
+            } else {
+                let hStr = "Veri yok";
+                if(stats.maxHourTime) {
+                    const d = new Date(stats.maxHourTime);
+                    hStr = `${d.getDate()} ${d.toLocaleString('tr-TR', {month:'short'})} - ${d.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'})}`;
+                }
+                advContainer.innerHTML = `
+                    <div class="adv-card">
+                        <div class="adv-icon">🔥</div>
+                        <div class="adv-title">Kriz Anı (1 Saatte)</div>
+                        <div class="adv-value">${stats.maxHourCount} Adet</div>
+                        <div class="adv-sub">${hStr}</div>
+                    </div>
+                    <div class="adv-card">
+                        <div class="adv-icon">🦇</div>
+                        <div class="adv-title">Gece Mesaisi</div>
+                        <div class="adv-value">${stats.maxNightCount} Adet</div>
+                        <div class="adv-sub">${stats.maxNightDay} Gecesi</div>
+                    </div>
+                    <div class="adv-card">
+                        <div class="adv-icon">🚂</div>
+                        <div class="adv-title">Zincirleme</div>
+                        <div class="adv-value">${stats.chainCount} Kez</div>
+                        <div class="adv-sub">15 dk'dan kısa</div>
+                    </div>
+                    <div class="adv-card">
+                        <div class="adv-icon">🌱</div>
+                        <div class="adv-title">İrade Günü</div>
+                        <div class="adv-value">${stats.minCount} Adet</div>
+                        <div class="adv-sub">${stats.minDay}</div>
+                    </div>`;
+            }
+            
+            document.getElementById('sheetOverlay').classList.add('active');
+            document.getElementById('userSheet').classList.add('active');
+        };
+
+        window.closeSheet = function() {
+            document.getElementById('sheetOverlay').classList.remove('active');
+            document.getElementById('userSheet').classList.remove('active');
+            currentUserForSheet = null;
+        };
+    </script>
+</body>
+</html>
+```eof
