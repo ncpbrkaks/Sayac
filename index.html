@@ -1,4 +1,3 @@
-```html:index.html
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -29,12 +28,19 @@
             background-color: var(--bg-base);
             background-image: radial-gradient(circle at top left, rgba(10, 132, 255, 0.1), transparent 50%),
                               radial-gradient(circle at bottom right, rgba(48, 209, 88, 0.05), transparent 50%);
-            background-attachment: fixed; color: var(--text-main); margin: 0;
+            background-attachment: fixed;
+            color: var(--text-main);
+            margin: 0;
             padding: env(safe-area-inset-top) 20px env(safe-area-inset-bottom) 20px;
             display: flex; flex-direction: column; align-items: center; min-height: 100vh;
         }
 
-        .glass { background: var(--bg-glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 0.5px solid rgba(255,255,255,0.1); }
+        .glass {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 0.5px solid rgba(255,255,255,0.1);
+        }
 
         .header { width: 100%; max-width: 400px; display: flex; justify-content: space-between; align-items: flex-end; margin-top: 15px; padding-bottom: 20px; }
         .header h1 { font-size: 32px; font-weight: 800; margin: 0; letter-spacing: 0.5px; }
@@ -44,15 +50,22 @@
         .admin-btn:active { transform: scale(0.95); opacity: 0.8; }
 
         .btn-container { margin: 0; display: flex; justify-content: center; position: relative; }
-        .btn-add { background: linear-gradient(135deg, #30D158 0%, #24993F 100%); border: none; border-radius: 50%; width: 130px; height: 130px; color: #fff; font-size: 56px; font-weight: 300; box-shadow: 0 10px 30px rgba(48, 209, 88, 0.4), inset 0 2px 5px rgba(255,255,255,0.3); cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center; }
+        .btn-add {
+            background: linear-gradient(135deg, #30D158 0%, #24993F 100%);
+            border: none; border-radius: 50%; width: 130px; height: 130px;
+            color: #fff; font-size: 56px; font-weight: 300;
+            box-shadow: 0 10px 30px rgba(48, 209, 88, 0.4), inset 0 2px 5px rgba(255,255,255,0.3);
+            cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center;
+        }
         .btn-add:active { transform: scale(0.9); box-shadow: 0 5px 15px rgba(48, 209, 88, 0.2); }
         .btn-ring { position: absolute; top: -10px; left: -10px; right: -10px; bottom: -10px; border-radius: 50%; border: 1px solid rgba(48, 209, 88, 0.3); animation: pulse 2s infinite; pointer-events: none; }
         @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.15); opacity: 0; } }
 
         /* S.O.S. Butonu */
-        .btn-sos { background: linear-gradient(135deg, rgba(255,69,58,0.2) 0%, rgba(255,69,58,0.05) 100%); border: 1px solid rgba(255,69,58,0.4); color: var(--ios-red); padding: 10px 24px; border-radius: 20px; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.2s; box-shadow: 0 5px 15px rgba(255,69,58,0.1); }
+        .btn-sos { background: linear-gradient(135deg, rgba(255,69,58,0.2) 0%, rgba(255,69,58,0.05) 100%); border: 1px solid rgba(255,69,58,0.4); color: var(--ios-red); padding: 10px 24px; border-radius: 20px; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.2s; box-shadow: 0 5px 15px rgba(255,69,58,0.1); margin-top: 15px; }
         .btn-sos:active { transform: scale(0.95); background: rgba(255,69,58,0.3); }
 
+        /* Toast Bildirim Sistemi */
         #toast-container { position: fixed; top: 15px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; width: 90%; max-width: 400px; }
         .toast { background: rgba(30, 30, 32, 0.90); backdrop-filter: blur(15px); border: 1px solid rgba(255,69,58,0.4); border-left: 5px solid var(--ios-red); color: #fff; padding: 14px 18px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); font-size: 14px; font-weight: 500; line-height: 1.4; animation: slideDown 0.4s forwards, fadeOut 0.4s ease-in forwards 4.6s; }
         @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -258,7 +271,12 @@
         <button class="admin-btn" id="adminToggleBtn" onclick="document.getElementById('adminPanelModal').classList.add('active')">⚙️ Panel</button>
     </div>
 
-    <!-- Buton Konteyneri (S.O.S. Eklendi) -->
+    <div class="segmented-control">
+        <button class="seg-btn active" id="tabDaily" onclick="setTab('daily')">Günlük Bilanço</button>
+        <button class="seg-btn" id="tabWeekly" onclick="setTab('weekly')">Haftalık Bilanço</button>
+    </div>
+
+    <!-- Buton Konteyneri -->
     <div style="display:flex; flex-direction:column; align-items:center; gap: 15px; margin: 10px 0 35px 0;">
         <div class="btn-container" style="margin:0;">
             <div class="btn-ring"></div>
@@ -324,7 +342,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
         import { getDatabase, ref, onValue, push, set, get, remove, update, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
 
-        // Firebase Ayarları
         const firebaseConfig = {
             apiKey: "AIzaSyA2-rUtVFadlncw_TPBK53qiLMVKhYKa6k",
             authDomain: "sayac-82f63.firebaseapp.com",
@@ -339,31 +356,28 @@
         const actionRef = ref(db, "latest_action");
         const sosRef = query(ref(db, "sos_alerts"), limitToLast(1));
 
-        // PWA Servis İşçisi Kaydı (Arka Plan Bildirimleri İçin)
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/firebase-messaging-sw.js').catch(function(err) {
-                console.log('Service worker yüklenemedi:', err);
+            navigator.serviceWorker.register('/firebase-messaging-sw.js').catch(err => {
+                console.log('SW hatası:', err);
             });
         }
 
         const COST_PER_ITEM = 6;
         const MINS_LOST_PER_CIG = 11;
         let currentUserForSheet = null;
+        let currentTab = 'daily';
         const pageLoadTime = Date.now();
         let isFirstSOSLoad = true;
         
-        // Günleri Türkçe yazdırma
         const days = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
         document.getElementById('dateText').innerText = days[new Date().getDay()];
 
-        // Admin Kontrolü
         const urlParams = new URLSearchParams(window.location.search);
         const isAdmin = urlParams.get('admin') === 'patron';
         if (isAdmin) {
             document.getElementById('adminToggleBtn').style.display = 'block';
         }
 
-        // Kullanıcı Girişi
         let myName = localStorage.getItem("sayac_ios_v13");
         let usersData = {};
         function sanitizeKey(name) { return name.replace(/[.#$[\]/]/g, "_"); }
@@ -374,7 +388,6 @@
             document.getElementById("loginModal").classList.add('active');
         }
 
-        // Sistem Lafları ve Rozetler
         const q0 = ["Ciğerleri Alp dağları gibi tertemiz.", "Büyük ihtimalle yalan söylüyor.", "Ortamda pasif içicilikten besleniyor."];
         const q1 = ["Kahvaltı niyetine bir tane yakmış garibim.", "Sadece kahve yanına eşlik etsin diye içiyor.", "Ağzında sadece hafif bir kül tadı var."];
         const q2 = ["Maaşın yarısı tekele gidiyor.", "Sarı diş sendromu %60 tamamlandı.", "Oksijen seviyesi İstanbul trafiği kadar tıkalı."];
@@ -405,7 +418,13 @@
             const day = d.getDay(); return new Date(d.setDate(d.getDate() - day + (day === 0 ? -6 : 1))).getTime();
         }
 
-        // Bildirim İzni İsteme Fonksiyonu
+        window.setTab = function(tab) {
+            currentTab = tab;
+            document.getElementById('tabDaily').classList.toggle('active', tab === 'daily');
+            document.getElementById('tabWeekly').classList.toggle('active', tab === 'weekly');
+            renderLeaderboard();
+        };
+
         window.requestPushPermission = function() {
             if ('Notification' in window) {
                 Notification.requestPermission();
@@ -419,46 +438,39 @@
                 localStorage.setItem("sayac_ios_v13", myName);
                 document.getElementById("loginModal").classList.remove('active');
                 update(ref(db, "counters/" + sanitizeKey(myName)), { name: myName });
-                requestPushPermission(); // Giriş yapınca bildirim izni iste
+                requestPushPermission();
             }
         };
 
-        // +1 Butonu İşlemleri
         window.addSmoke = function() {
             if (!myName) return;
             if (navigator.vibrate) navigator.vibrate([20]);
             update(ref(db, "counters/" + sanitizeKey(myName)), { name: myName });
             push(ref(db, "counters/" + sanitizeKey(myName) + "/logs"), Date.now());
-            set(actionRef, { user: myName, time: Date.now() }); // Toast bildirimi tetikle
+            set(actionRef, { user: myName, time: Date.now() });
         };
 
-        // 🚨 S.O.S. Sinyali Gönderme
         window.triggerSOS = function() {
             if (!myName) return;
             push(ref(db, "sos_alerts"), { user: myName, time: Date.now() });
-            showToast("S.O.S. Sinyali Gönderildi! Tim Yolda...");
+            showToast("S.O.S. Sinyali Gönderildi! Tim Yolda...", true);
         };
 
-        // S.O.S Sinyallerini Dinleme (Telefon Kilitli Değilken/Uygulama Açıkken Bildirim Atar)
         onValue(sosRef, (snap) => {
             if(isFirstSOSLoad) { isFirstSOSLoad = false; return; }
             snap.forEach(child => {
                 const data = child.val();
-                // Sadece son 10 saniye içinde atılan S.O.S.'leri ve kendi atmadıklarımızı yakala
                 if(data && data.time > Date.now() - 10000 && data.user !== myName) {
                     const msg = `🚨 KIRMIZI KOD! ${data.user} kriz geçiriyor, müdahale edin!`;
-                    showToast(msg);
-                    
-                    // Telefonun Yerel Bildirimini (Native Push) Tetikle
+                    showToast(msg, true);
                     if ('Notification' in window && Notification.permission === "granted") {
                         new Notification("Acil Müdahale Timi!", { body: msg, icon: "🚨" });
-                        if(navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 200]); // SOS Titreşimi
+                        if(navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 200]);
                     }
                 }
             });
         });
 
-        // Anlık Toast Dinleyicisi
         onValue(actionRef, (snap) => {
             const data = snap.val();
             if (data && data.time > pageLoadTime && data.user !== myName) {
@@ -491,20 +503,17 @@
             }, 5000);
         }
 
-        // --- SANAL BEBEK (CİĞER) ALGORİTMASI ---
         function calculateLungHealth(logs) {
             if(!logs || logs.length === 0) return 100;
             let hp = 100;
             const daysMap = {};
             
-            // Günleri say
             logs.forEach(t => {
                 const d = new Date(t).toLocaleDateString('tr-TR');
                 if(!daysMap[d]) daysMap[d] = 0;
                 daysMap[d]++;
             });
             
-            // Zincirleme hasarı
             let chainDmg = 0;
             for(let i = 1; i < logs.length; i++) {
                 if (logs[i] - logs[i-1] <= 900000) chainDmg += 0.5;
@@ -515,7 +524,6 @@
             const today = new Date();
             today.setHours(0,0,0,0);
 
-            // Her gün için can hesapla
             for (let d = new Date(firstDay); d <= today; d.setDate(d.getDate() + 1)) {
                 const count = daysMap[d.toLocaleDateString('tr-TR')] || 0;
                 if(count === 0) hp += 5;
@@ -554,7 +562,6 @@
             if(navigator.vibrate) navigator.vibrate([50]);
         };
 
-        // --- ADMİN PANELİ FONKSİYONLARI ---
         window.adminCreateUser = async function() {
             const newName = prompt("Kullanıcı Adı:");
             if (newName && newName.trim().length > 0) {
@@ -644,14 +651,19 @@
                 return;
             }
             
-            const logs = Object.entries(u.logs).sort((a,b) => b[1] - a[1]); // Yeniden eskiye
-            logs.forEach(([id, ts]) => {
-                const d = new Date(ts);
+            const logsObj = u.logs || {};
+            const logs = Object.keys(logsObj)
+                               .map(key => ({ id: key, ts: logsObj[key] }))
+                               .filter(item => typeof item.ts === 'number')
+                               .sort((a,b) => b.ts - a.ts);
+
+            logs.forEach(item => {
+                const d = new Date(item.ts);
                 const ds = `${d.getDate()} ${d.toLocaleString('tr-TR',{month:'short'})} - ${d.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})}`;
                 c.innerHTML += `
                 <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 5px; border-bottom:1px solid rgba(255,255,255,0.05);">
                     <span style="font-size:14px; color:#fff; font-variant-numeric: tabular-nums;">🚬 ${ds}</span>
-                    <button class="action-btn" style="background:rgba(255,69,58,0.15); color:var(--ios-red); padding:6px 12px; border:1px solid rgba(255,69,58,0.3);" onclick="adminDeleteSpecificLog('${uk}', '${id}')">Sil</button>
+                    <button class="action-btn" style="background:rgba(255,69,58,0.15); color:var(--ios-red); padding:6px 12px; border:1px solid rgba(255,69,58,0.3);" onclick="adminDeleteSpecificLog('${uk}', '${item.id}')">Sil</button>
                 </div>`;
             });
         };
@@ -681,8 +693,9 @@
                 const s = getStartOfToday();
                 const u = usersData[uk];
                 if (u && u.logs) {
-                    Object.entries(u.logs).forEach(([id, ts]) => {
-                        if (ts >= s) remove(ref(db, `counters/${uk}/logs/${id}`));
+                    const logsObj = u.logs || {};
+                    Object.keys(logsObj).forEach(id => {
+                        if (logsObj[id] >= s) remove(ref(db, `counters/${uk}/logs/${id}`));
                     });
                     alert("Bugün tamamen temizlendi.");
                 }
@@ -700,7 +713,6 @@
             }
         };
 
-        // --- FAGERSTRÖM VE ÖMÜR HESABI ---
         window.openFagerstrom = function() {
             document.getElementById('fagerstromModal').classList.add('active');
         };
@@ -737,7 +749,6 @@
             return res.join(' ');
         };
 
-        // --- VERİ ÇEKME VE TABLO LİSTELEME ---
         onValue(countersRef, (snapshot) => {
             usersData = snapshot.val() || {};
             
@@ -759,7 +770,12 @@
         });
 
         function processUserData(user) {
-            const logsArray = user.logs ? Object.entries(user.logs).map(([id, ts])=>({id, ts})).sort((a,b)=>a.ts-b.ts) : [];
+            const logsObj = user.logs || {};
+            const logsArray = Object.keys(logsObj)
+                                    .map(key => ({ id: key, ts: logsObj[key] }))
+                                    .filter(item => typeof item.ts === 'number')
+                                    .sort((a,b) => a.ts - b.ts);
+                                    
             const aSet = user.adminSettings || {};
             
             const statsLogs = aSet.statsStartDate ? logsArray.filter(l => l.ts >= aSet.statsStartDate) : logsArray;
@@ -891,7 +907,6 @@
             });
         }
 
-        // Tüketim Tablosu Grafik Rendering
         window.setChartTab = function(days) {
             document.getElementById('tabChart7').classList.toggle('active', days === 7);
             document.getElementById('tabChart30').classList.toggle('active', days === 30);
@@ -935,7 +950,6 @@
             container.innerHTML = html;
         };
 
-        // --- PROFİL KARTI AÇILIŞI ---
         window.openUserSheet = function(user, quote) {
             currentUserForSheet = user;
             const stats = calculateAdvancedStats(user.statsLogs); 
@@ -946,7 +960,6 @@
             document.getElementById('sheetWeekCount').innerText = user.weekCount;
             document.getElementById('sheetTotalCost').innerText = (user.totalCount * COST_PER_ITEM) + " ₺";
 
-            // Sanal Ciğer Render
             const rawLogs = user.allLogs.map(l => l.ts);
             const lungHp = calculateLungHealth(rawLogs);
             const lungArea = document.getElementById('lungArea');
@@ -965,7 +978,6 @@
                     <div style="font-size:11px; color:var(--text-muted); margin-top:5px; font-weight:600;">CİĞER BÜTÜNLÜĞÜ: %${Math.round(lungHp)}</div>
                 </div>`;
 
-            // Fagerström ve Ömür Hesabı
             const fArea = document.getElementById('fagerstromArea');
             const lArea = document.getElementById('lifeStatsArea');
             
@@ -1007,7 +1019,6 @@
                 lArea.innerHTML = "";
             }
 
-            // Rozetler
             const badgeContainer = document.getElementById('sheetBadges');
             const badgeTitle = document.getElementById('badgeTitle');
             badgeContainer.innerHTML = '';
@@ -1029,10 +1040,8 @@
                 badgeTitle.style.display = 'none';
             }
 
-            // Tabloyu Göster
             setChartTab(7);
 
-            // Gelişmiş İstatistikler
             const advContainer = document.getElementById('advancedStats');
             if (!stats) {
                 advContainer.innerHTML = '<div style="grid-column: 1/-1; text-align:center; color:var(--text-muted); font-size:13px; padding:20px;">Analiz için yeterli veri yok.</div>';
